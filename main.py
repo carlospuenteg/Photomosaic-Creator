@@ -15,6 +15,10 @@ Images taken from:
 """
 
 #------------------------------------------------------------------------------
+
+MAX_SIZE = 1000000000
+
+#------------------------------------------------------------------------------
 # ANSI COLORS for the terminal
 
 class Ansi:
@@ -134,7 +138,7 @@ def get_best_for_main(main_image, folder="animals", num_images=20):
         closest_index = closest(images_avg_color, rgb)
         images_avg_color[closest_index] = [-255,-255,-255]
         img = Image.open(path + "/" + files[closest_index])
-        img.save(new_path + "/" + str(new_index) + ".jpg")
+        img.save(f"{new_path}/{new_index}.jpg")
         new_index += 1
 
 #------------------------------------------------------------------------------
@@ -159,9 +163,33 @@ def get_color_deviations(folder, files, avg_colors, size_to_test=10):
     return np.array(res)
 
 #------------------------------------------------------------------------------
+# Gets the average contrast in each image
+
+def get_contrasts(image_path):
+    img = np.array(Image.open(image_path).resize((4, 4)))
+    color_left = np.average(img[:2,:].reshape(8,3), axis=0)
+    color_right = np.average(img[2:,:].reshape(8,3), axis=0)
+    color_top = np.average(img[:,:2].reshape(8,3), axis=0)
+    color_bottom = np.average(img[:,2:].reshape(8,3), axis=0)
+
+    return np.array([
+        sum(np.absolute(np.subtract(color_right,color_left))),
+        sum(np.absolute(np.subtract(color_bottom,color_top))),
+    ])
+
+def get_images_contrasts(folder, files):
+    res = []
+
+    print(f"{Ansi.CYAN}Analyzing the average contrasts...{Ansi.RESET}")
+    for file in files:
+        res.append(get_contrasts(f"{folder}/{file}"))
+
+    return np.array(res)
+
+#------------------------------------------------------------------------------
 # Creates a new folder with the images from the given folder, removing the images with similar colors
 
-def get_best(folder="animals", min_color_diff=20, max_color_deviation=100):
+def get_best(folder="animals", min_color_diff=0, max_color_deviation=200, max_contrast=200):
     path = f"images/{folder}"
     new_path = f"images/best_{folder}"
 
@@ -172,6 +200,7 @@ def get_best(folder="animals", min_color_diff=20, max_color_deviation=100):
     files = np.array([f for f in sorted(os.listdir(path)) if f.endswith(".jpg")])
     images_avg_color = get_colors(path, files)
     images_avg_deviation = get_color_deviations(path, files, images_avg_color)
+    images_contrasts = get_images_contrasts(path, files)
     best_images = []
     new_index = 0
     
@@ -180,7 +209,7 @@ def get_best(folder="animals", min_color_diff=20, max_color_deviation=100):
         valid = True
         for color in best_images:
             diffs = [ abs(rgb[j] - color[j]) for j in range(3) ]
-            if sum(diffs) <= min_color_diff or images_avg_deviation[i] > max_color_deviation:
+            if sum(diffs) <= min_color_diff or images_avg_deviation[i] > max_color_deviation or images_contrasts[i][0] > max_contrast or images_contrasts[i][1] > max_contrast:
                 valid = False
                 break
         if valid:
@@ -196,11 +225,14 @@ def get_best(folder="animals", min_color_diff=20, max_color_deviation=100):
 #------------------------------------------------------------------------------
 # This is executed when the script is run
 
-def create_img(main_image, images_size=50, **args):
-    images_folder_name = args.get('images_folder', 'animals')
+def create_img(main_image, images_size=50, images_folder="animals", new_name="photomosaic.jpg", num_images = -1):
+    images_folder_name = images_folder
     images_folder = f"images/{images_folder_name}"
-    new_name = args.get('new_name', "photomosaic.jpg")
-    num_images = args.get('num_images', -1)
+    main_img = np.array(Image.open(f"main-images/{main_image}"))
+
+    if main_img.shape[0] * main_img.shape[1] * (images_size**2) > MAX_SIZE:
+        print(f"{Ansi.RED}Image too big!{Ansi.RESET}")
+        return
 
     if num_images != -1 or num_images > len(os.listdir(images_folder)):
         get_best_for_main(main_image, images_folder_name,num_images)
@@ -212,7 +244,6 @@ def create_img(main_image, images_size=50, **args):
     images_avg_color = get_colors(images_folder, files)
 
     images = [ np.array(Image.open(f"{images_folder}/{file}").resize((images_size, images_size)))[:,:,::-1] for file in files ] # [:,:,::-1] to convert from BGR to RGB
-    main_img = np.array(Image.open(f"main-images/{main_image}"))
     new_img_arr = np.zeros((len(main_img)*images_size, len(main_img[0])*images_size, 3), dtype=np.uint8)
 
     for i,line in enumerate(main_img):
@@ -265,14 +296,13 @@ create_img(
 get_best(
     folder=                 "animals",
     min_color_diff=         10,
-    max_color_deviation=    200
+    max_contrast=           200
 )
 create_img( 
-    main_image=     "img2_high-res.jpeg", 
-    images_size=    50, 
+    main_image=     "lion-h.jpeg", 
+    images_size=    50,
     images_folder=  "best_animals",
     new_name=       "photomosaic.jpg",
-    num_images=     -1
 )
 #------------------------------------------------------------------------------
 print(f'{Ansi.CYAN}Done in: {round(time.time() - startTime,4)}s{Ansi.RESET}')
