@@ -151,7 +151,7 @@ Gets the best images from the `folder` folder
 | max_contrast | Maximum contrast between the image's top and bottom and left and right parts | `765` | `150` | [0,765] |
 | size | Size that the images of the new folder will have. The less size, the less it will take to create a photomosaic with these images | `1000` | `200` | [1,...] |
 
-#### Explanation
+#### Explanation
 
 1. Creates a new folder inside the `images` folder, with the name of the `folder` argument preceded by `$b_`
 2. Sorts the files in the `folder` folder
