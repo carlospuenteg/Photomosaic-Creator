@@ -43,7 +43,7 @@ def closest(arr, color):
 
 #------------------------------------------------------------------------------
 
-def main(file="img_test.jpeg", size=10, format=False, folder="animals"):
+def main(file="img_test.jpeg", size=10, format=True, folder="animals"):
     if format: 
         for f in os.listdir("resized"):
             os.remove("resized/" + f)
@@ -63,4 +63,4 @@ def main(file="img_test.jpeg", size=10, format=False, folder="animals"):
 
 #------------------------------------------------------------------------------
 
-main("img2-high.jpeg", 100, True, "animals")
+main("img3-higher.jpeg", 50 , True, "animals")

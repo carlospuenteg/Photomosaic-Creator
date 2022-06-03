@@ -28,7 +28,7 @@ def resize_all(size, folder="images/animals"):
     i = 0
     for file in os.listdir(folder):
         if not file.startswith('.'):
-            resize(file, size, str(i) + ".jpg")
+            resize(file, size, str(i) + ".jpg", folder)
             i += 1
 
 resize_all((int(sys.argv[1]), int(sys.argv[2])), "images/" + sys.argv[3])
