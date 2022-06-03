@@ -426,13 +426,13 @@ startTime = time.time()
 #########################################################################################
 # Your calls go here
 create_photomosaic( 
-    main_image=     "elephant-h.jpg", 
+    main_image=     "lion-h.jpg", 
     images_size=    50,
     images_folder=  "$b_$all",
     new_name=       "photomosaic",
     num_images=     False,
     quality=        85,
-    save_fullres=   False,
+    save_fullres=   True,
     save_lowres=    True,
     save_gif=       True,
     save_zooms=     False,
