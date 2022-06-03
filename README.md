@@ -21,12 +21,12 @@ You can use the preset sets/folders of images or you can upload your own folders
 
 
 ## 2. Results
-<div float="center">
+<div float="left" align="center">
   <img src="./assets/lion.jpg" alt="lion" height="400">
   <img src="./assets/elephant.jpg" alt="elephant" height="400">
   <img src="./assets/tiger.jpg" alt="tiger" height="400">
 </div>
-<div float="center">
+<div float="left" align="center">
   <img src="./assets/lion.gif" alt="lion" height="400">
   <img src="./assets/elephant.gif" alt="elephant" height="400">
   <img src="./assets/tiger.gif" alt="tiger" height="400">
