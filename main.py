@@ -38,10 +38,11 @@ class Ansi:
 # Progress bar
 
 def progress_bar(percent, text="", bar_len=30):
+    SYMBOL = "━"
     done = round(percent*bar_len)
-    left = bar_len - done # ━
+    left = bar_len - done
 
-    print(f"   {Ansi.GREEN}{'▩'*done}{Ansi.RESET}{'▩'*left} {f'[{round(percent*100,2)}%]'.ljust(8)} {Ansi.MAGENTA}{text}{Ansi.RESET}", end='\r')
+    print(f"   {Ansi.GREEN}{SYMBOL*done}{Ansi.RESET}{SYMBOL*left} {f'[{round(percent*100,2)}%]'.ljust(8)} {Ansi.MAGENTA}{text}{Ansi.RESET}", end='\r')
 
     if percent == 1: print("✅")
 
@@ -281,19 +282,24 @@ def get_best_colors_main(main_image, folder="animals", num_images=20):
 #------------------------------------------------------------------------------
 # Save an image
 
+def get_file_size(path):
+    return os.path.getsize(path)/2**20
+
+#------------------------------------------------------------------------------
+# Save an image
+
 def save_img(img, path, quality=95):
     if not cv2.imwrite(path, img, [cv2.IMWRITE_JPEG_QUALITY, quality]):
         print(f"{Ansi.RED}Unable to save the image. Image is probably too big.{Ansi.RESET}")
     else:
-        print(f"{Ansi.GREEN}Image saved{Ansi.RESET} ({os.path.getsize(path)/2**20:.2f} MB)")
+        print(f"{Ansi.GREEN}Image saved{Ansi.RESET} ({get_file_size(path):.2f} MB)")
 
 #------------------------------------------------------------------------------
 # Save a GIF
 
 def save_gif(images, path, quality=95, frame_duration=250):
     images[0].save(path, format="GIF", append_images=images, save_all=True, duration=frame_duration, loop=0, quality=quality)
-    # imageio.mimsave(f"{new_folder}/{new_name}_zoom.gif", gif_images, fps=0.1)
-    print(f"{Ansi.GREEN}GIF saved{Ansi.RESET} ({os.path.getsize(path)/2**20:.2f} MB)")
+    print(f"{Ansi.GREEN}GIF saved{Ansi.RESET} ({get_file_size(path):.2f} MB)")
 
 #------------------------------------------------------------------------------
 # Save the photomosaic
@@ -416,13 +422,13 @@ def create_photomosaic(main_image="lion-h", images_size=50, images_folder="$b_$a
     
 
 #########################################################################################
-# This is executed when the script is run
-#------------------------------------------------------------------------------
 startTime = time.time()
-#------------------------------------------------------------------------------
+#########################################################################################
+# Your calls go here
+
 create_photomosaic( 
-    main_image=     "tiger-h.jpg", 
-    images_size=    200,
+    main_image=     "lion-h.jpg", 
+    images_size=    50,
     images_folder=  "$b_$all",
     new_name=       "photomosaic",
     num_images=     False,
@@ -433,18 +439,20 @@ create_photomosaic(
     save_zooms=     False,
     resize_main=    False
 )
-#------------------------------------------------------------------------------
+#########################################################################################
 print(f'{Ansi.CYAN}Done in: {round(time.time() - startTime,4)}s{Ansi.RESET}')
 #########################################################################################
 """
 clean_best_folders()
-create_all_folder()
+create_all_folder(
+    size=   200
+)
 treat_images(
     folder= "animals",
     size=   1000
 )
 get_best(
-    folder=                 "animals",
+    folder=                 "$all",
     max_avg_color_deviation=120,
     max_contrast=           150,
     size=                   200
