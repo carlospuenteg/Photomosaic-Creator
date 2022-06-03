@@ -112,6 +112,14 @@ def create_folders():
         os.makedirs("main-images")
 
 #------------------------------------------------------------------------------
+# Removes every element from the given folder
+
+def clean_folder(folder):
+    if os.path.exists(folder):
+        shutil.rmtree(folder)
+    os.makedirs(folder)
+
+#------------------------------------------------------------------------------
 # Creates a new folder with the best images to be used as a palette for a main image
 
 def get_best_colors(image_path, num_colors=20):
@@ -125,9 +133,7 @@ def get_best_for_main(main_image, folder="animals", num_images=20):
     new_path = f"images/best_{folder}_{main_image.split('.')[0]}"
     main_image_path = f"main-images/{main_image}"
 
-    if os.path.exists(new_path):
-        shutil.rmtree(new_path)
-    os.makedirs(new_path)
+    clean_folder(new_path)
 
     files = np.array([f for f in sorted(os.listdir(path)) if f.endswith(".jpg")])
     images_avg_color = get_colors(path, files)
@@ -193,9 +199,7 @@ def get_best(folder="animals", min_color_diff=0, max_color_deviation=200, max_co
     path = f"images/{folder}"
     new_path = f"images/best_{folder}"
 
-    if os.path.exists(new_path):
-        shutil.rmtree(new_path)
-    os.makedirs(new_path)
+    clean_folder(new_path)
 
     files = np.array([f for f in sorted(os.listdir(path)) if f.endswith(".jpg")])
     images_avg_color = get_colors(path, files)
@@ -293,13 +297,8 @@ create_img(
 )
 """
 #------------------------------------------------------------------------------
-get_best(
-    folder=                 "animals",
-    min_color_diff=         10,
-    max_contrast=           200
-)
 create_img( 
-    main_image=     "lion-h.jpeg", 
+    main_image=     "lion-m.jpeg", 
     images_size=    50,
     images_folder=  "best_animals",
     new_name=       "photomosaic.jpg",

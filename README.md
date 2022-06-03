@@ -102,15 +102,25 @@ Function that picks the best images from the given set of images.
 | argument | description | example | default value | Range |
 | -------- | ----------- | ------- | ------------- | ----- |
 | folder | Folder of the set of images | "landscapes" | "animals" | |
-| max_color_deviation | The maximum average color deviation from the average color in the images. So that there are not many images with, for example, a green half and a black half | 150 | 100 | [0,256] |
+| min_color_diff | The minumum color difference between the images (the more difference, the less images) | 10 | 20 | [0,765] |
+| max_color_deviation | The maximum average color deviation from the average color in the images. So that there are not many images with, for example, a green half and a black half | 150 | 100 | [0,765] |
 | max_contrast | The maximum contrast between the top-bottom or right-left that an image can have | 150 | 200 | [0,765] |
 
 #### Examples (get_best)
 ```python
 get_best(
-    folder=             "animals",
-    max_contrast=       150,
-    max_color_deviation=200
+    folder=                 "animals",
+    min_color_diff=         10,
+    max_contrast=           200
+)
+get_best(
+    folder=         "animals",
+    min_color_diff= 20,
+)
+get_best(
+    folder=                 "animals",
+    min_color_diff=         10,
+    max_color_deviation=    150
 )
 ```
 
@@ -127,7 +137,7 @@ Creates a new folder with the best images to be used as a palette for a main ima
 | -------- | ----------- | ------- | ------------- | ----- |
 | main_image | Path of the main image from where the color palette will be created | img2_high-res.jpeg | | |
 | folder | Folder of the set of images | "landscapes" | "animals" | |
-| num_images | Number of images to pick | 10 | 20 | [3,min(256,num_images)] |
+| num_images | Number of images to pick | 10 | 20 | [3,num_images] |
 
 #### Examples
 ```python
