@@ -4,7 +4,7 @@
 - [Introduction](#1-introduction)
 - [Results](#2-results)
 - [Run the script](#3-run-the-script)
-- [How it works](#h4-ow-it-works)
+- [How it works](#4-how-it-works)
   - [`create_photomosaic`](#create_photomosaic)
   - [`get_best`](#get_best)
   - [`treat_images`](#treat_images)
@@ -14,21 +14,26 @@
 
 
 ## 1. Introduction
+
 This program allows you to create a photomosaic from a set of images.
 
 You can use the preset sets/folders of images or you can upload your own folders to the `images` folder.
 
 
-## 2. Results
-<img src="./assets/lion.jpg" alt="lion" height="500">
-<img src="./assets/elephant.jpg" alt="elephant" height="500">
-<img src="./assets/tiger.jpg" alt="tiger" height="500">
-<br>
-<img src="./assets/lion.gif" alt="lion" height="500">
-<img src="./assets/elephant.gif" alt="elephant" height="500">
-<img src="./assets/tiger.gif" alt="tiger" height="500">
+## 2. Results
+<div float="center">
+  <img src="./assets/lion.jpg" alt="lion" height="500">
+  <img src="./assets/elephant.jpg" alt="elephant" height="500">
+  <img src="./assets/tiger.jpg" alt="tiger" height="500">
+</div>
+<div float="center">
+  <img src="./assets/lion.gif" alt="lion" height="500">
+  <img src="./assets/elephant.gif" alt="elephant" height="500">
+  <img src="./assets/tiger.gif" alt="tiger" height="500">
+</div>
 
-## 3. Run the script
+## 3. Run the script
+
 Call the desired functions in this part of the `main.py` file:
 ```python
 #########################################################################################
@@ -62,7 +67,7 @@ python3 main.py
 Then, after the script runs, the result should appear in the `output` folder.
 
 
-## 4. How it works
+## 4. How it works
 
 ### `create_photomosaic`
 
@@ -83,7 +88,7 @@ Creates a photomosaic from a set of images
 | save_zooms | Save zoomed images of the photomosaic | `False` | `True` ||
 | resize_main | Resize the main image (If you have an image too big to process) | `False` | `(720, 540)` | [1,...] |
 
-#### Explanation
+#### Explanation
 1. Creates the needed folders
 2. If `resize_main != False`, resizes the `main_image` to `resize_main`, a tuple with the width and the height.
 3. If `num_images != False`, it will obtain the best images to create the photomosaic, based on the palette of colors of the main image.
