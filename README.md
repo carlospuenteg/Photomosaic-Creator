@@ -34,7 +34,7 @@ $ python3 main.py
 
 1. Creates the needed folders
 2. If `resize=True`, the `resized` folder will be replaced with the new resized images from the given set of images
-3. Obtains the average value of each primary color of each image in the `resized` folder
+3. Obtains the average value of each primary color of each image in the `resized` folder by reducing the size of each image to 1 pixel
 4. Creates an array with all the numpy arrays of the images in the `resized` folder, converted from BGR to RGB
 5. Creates a numpy array from the selected main image in the `main-images` folder
 6. Creates the photomosaic by choosing the images with the closest average color for each pixel in the main image
