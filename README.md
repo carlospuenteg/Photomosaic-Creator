@@ -38,12 +38,12 @@ The more images the set has, the better the result, but the more time it will ta
 ## Results
 
 ### Full images
-<img src="./Examples/result_2/full.jpeg" alt="example_img_1_full" height="500">
-<img src="./Examples/result_1/full.jpeg" alt="example_img_2_full" height="500">
+<img src="./Examples/result_1/full.jpeg" alt="example_img_1_full" height="500">
+<img src="./Examples/result_2/full.jpeg" alt="example_img_2_full" height="500">
 
 ### Zoom
-<img src="./Examples/result_2/zoom_1.jpeg" alt="example_img_2_zoom_1" height="500">
-<img src="./Examples/result_2/zoom_2.jpeg" alt="example_img_2_zoom_2" height="500">
+<img src="./Examples/result_1/zoom_1.jpeg" alt="example_img_1_zoom_1" height="500">
+<img src="./Examples/result_1/zoom_2.jpeg" alt="example_img_1_zoom_2" height="500">
 
 ## Run the script
 
@@ -104,9 +104,9 @@ Function that picks the best images from the given set of images.
 ```python
 # Suggested:
 get_best(
-  folder=                 "animals",
-  max_avg_color_deviation=100,
-  max_contrast=           100
+  folder=                     "$all",
+  max_avg_color_deviation=    120,
+  max_contrast=               150
 )
 ```
 
