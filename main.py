@@ -3,7 +3,11 @@ from PIL import Image
 import os
 import cv2
 
-# Images taken from: https://unsplash.com/es/s/fotos/animals?orientation=squarish
+"""
+Images taken from: 
+- Animals: https://unsplash.com/es/s/fotos/animals?orientation=squarish
+- Landscapes: https://unsplash.com/es/s/fotos/landscapes?orientation=squarish
+"""
 
 #------------------------------------------------------------------------------
 
@@ -39,13 +43,13 @@ def closest(arr, color):
 
 #------------------------------------------------------------------------------
 
-def main(file="img_test.jpeg", size=10, format=False):
+def main(file="img_test.jpeg", size=10, format=False, folder="animals"):
     if format: 
-        for file in os.listdir("resized"):
-            os.remove("resized/" + file)
-        os.system("python3 resize.py " + str(size) + " " + str(size))
+        for f in os.listdir("resized"):
+            os.remove("resized/" + f)
+        os.system("python3 resize.py " + str(size) + " " + str(size) + " " + folder)
 
-    images_avg = get_colors("resized")
+    images_avg = get_colors()
     images = [ np.array(Image.open("resized/" + str(i) + ".jpg"))[:,:,::-1] for i in range(len(images_avg)) ]
     main_img = np.array(Image.open("main-image/" + file))
     new_img = np.zeros((len(main_img)*size, len(main_img[0])*size, 3), dtype=np.uint8)
@@ -59,4 +63,4 @@ def main(file="img_test.jpeg", size=10, format=False):
 
 #------------------------------------------------------------------------------
 
-main("img2-high.jpeg", 100, False)
+main("img2-high.jpeg", 100, True, "animals")

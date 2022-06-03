@@ -2,8 +2,8 @@ from PIL import Image
 import os
 import sys
 
-def resize(file, size, new_file="res_image.png"):
-    img = Image.open("images/" + file)
+def resize(file, size, new_file="res_image.png", folder="images/animals"):
+    img = Image.open(folder + "/" + file)
     init_width = img.size[0]
     init_height = img.size[1]
 
@@ -24,11 +24,11 @@ def resize(file, size, new_file="res_image.png"):
         resized_img = img.resize((new_width, new_height))
         resized_img.save("resized/" + new_file)
 
-def resize_all(size):
+def resize_all(size, folder="images/animals"):
     i = 0
-    for file in os.listdir("images"):
+    for file in os.listdir(folder):
         if not file.startswith('.'):
             resize(file, size, str(i) + ".jpg")
             i += 1
 
-resize_all((int(sys.argv[1]), int(sys.argv[2])))
+resize_all((int(sys.argv[1]), int(sys.argv[2])), "images/" + sys.argv[3])
