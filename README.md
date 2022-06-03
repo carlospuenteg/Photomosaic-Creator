@@ -37,14 +37,15 @@ The more images the set has, the better the result, but the more time it will ta
 
 ## Results
 
-### Full images
-<img src="./Examples/result_1/full.jpeg" alt="example_img_1_full" height="500">
-<img src="./Examples/result_2/full.jpeg" alt="example_img_2_full" height="500">
-
-### Zoom
-<img src="./Examples/result_1/zoom_1.jpeg" alt="example_img_1_zoom_1" height="500">
-<img src="./Examples/result_1/zoom_2.jpeg" alt="example_img_1_zoom_2" height="500">
-<img src="./output/elephant/elephant.gif" alt="example_img_1_zoom_2" height="500">
+### 
+<img src="./Examples/lion.jpg" alt="lion" height="500">
+<img src="./Examples/lion.gif" alt="lion" height="500">
+<br>
+<img src="./Examples/elephant.jpg" alt="elephant" height="500">
+<img src="./Examples/elephant.gif" alt="elephant" height="500">
+<br>
+<img src="./Examples/tiger.jpg" alt="tiger" height="500">
+<img src="./Examples/tiger.gif" alt="tiger" height="500">
 
 ## Run the script
 

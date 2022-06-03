@@ -318,7 +318,7 @@ def save_zoom_images(img_arr, new_folder, new_name, main_img_shape, images_size,
 #------------------------------------------------------------------------------
 # Save a GIF of the zoomed images of the photomosaic
 
-def save_zoom_gif(img_arr, new_folder, new_name, main_img_shape, images_size, quality=95, min_images=5, zoom_incr=1.3):
+def save_zoom_gif(img_arr, new_folder, new_name, main_img_shape, images_size, quality=95, min_images=3, zoom_incr=1.3):
     full_shape = img_arr.shape
     gif_images = []
     zoom = 1
@@ -329,14 +329,40 @@ def save_zoom_gif(img_arr, new_folder, new_name, main_img_shape, images_size, qu
 
     save_gif(gif_images, f"{new_folder}/{new_name}_zoom.gif", quality)
 
+#------------------------------------------------------------------------------
+# Resize image
+
+def resize_img(img, size):
+    init_width = img.size[0]
+    init_height = img.size[1]
+    new_width = size[0]
+    new_height = size[1]
+    if (len(size) != 2):
+        print(f"{Ansi.RED}Error: size must be a list of length 2{Ansi.RESET}"); return
+    if not new_width or not new_height:
+        if not new_width and new_height:
+            new_width = int(init_width / (init_height / new_height))
+        elif not new_height and new_width:
+            new_height = int(init_height / (init_width / new_width))
+        else:
+            print(f"{Ansi.RED}Error: Width or height must be specified{Ansi.RESET}"); return
+    if new_width > init_width:
+        new_width = init_width
+    if new_height > init_height:
+        new_height = init_height
+    resized_img = img.resize((new_width, new_height))
+    return resized_img
 
 #------------------------------------------------------------------------------
 # This is executed when the script is run
 
-def create_img(main_image, images_size=50, images_folder="animals", new_name="photomosaic", num_images=-1, quality=85, save_lowres=True, save_full=True, save_zoom=True, save_gif=True):
+def create_img(main_image, images_size=50, images_folder="$b_$all", new_name="photomosaic", num_images=-1, quality=85, save_lowres=True, save_full=True, save_zoom=True, save_gif=True, resize_main=False):
     images_folder_name = images_folder
     images_folder = f"images/{images_folder_name}"
-    main_img = np.array(Image.open(f"main-images/{main_image}"))
+    main_img = Image.open(f"main-images/{main_image}")
+    if resize_main:
+        main_img = resize_img(main_img, (resize_main[0], resize_main[1]))
+    main_img = np.array(main_img)
 
     max_images = min(255, len(os.listdir(images_folder)))
     min_images = 3
@@ -382,10 +408,10 @@ def create_img(main_image, images_size=50, images_folder="animals", new_name="ph
 startTime = time.time()
 #------------------------------------------------------------------------------
 create_img( 
-    main_image=     "cannon-h.jpeg", 
-    images_size=     50, 
-    images_folder=  "$b_$all",
-    new_name=       "cannon",
+    main_image=     "lion-hd.jpg", 
+    new_name=       "lion",
+    images_size=    50,
+    quality=        75,
 )
 #------------------------------------------------------------------------------
 print(f'{Ansi.CYAN}Done in: {round(time.time() - startTime,4)}s{Ansi.RESET}')
@@ -406,7 +432,7 @@ get_best(
     max_contrast=               150
 )
 create_img( 
-    main_image=     "cannon-h.jpeg", 
+    main_image=     "cannon-h.jpg", 
     images_size=     50, 
     images_folder=  "$b_$all",
     new_name=       "photomosaic.jpg",
