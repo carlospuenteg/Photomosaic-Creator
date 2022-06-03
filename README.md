@@ -62,13 +62,13 @@ $ python3 main.py
 ### Main function (create_img())
 
 #### Arguments (create_img)
-| argument | description | example | default value | Required |
-| -------- | ----------- | ------- | ------------- | -------- |
-| 1 | Name of the main image | "img1.jpeg" | | Yes |
-| 2 | Size in px of the images that make up the main image | 100 | 50 | Yes |
-| images_folder | Folder where the set of images are | images_folder="animals" | "animals" | No |
-| new_name | Name of the new image | new_name="my_photomosaic.jpg" | "photomosaic.jpg" | No |
-| num_images | Number of images that will be used to create the image. If not specified, it will be create will all the iamges in the images_folder | 20 | 50 | No |
+| argument | description | example | default value | Range |
+| -------- | ----------- | ------- | ------------- | ----- |
+| 1 | Name of the main image | "img1.jpeg" | |
+| 2 | Size in px of the images that make up the main image | 100 | 50 | [1,...] |
+| images_folder | Folder where the set of images are | images_folder="animals" | "animals" | |
+| new_name | Name of the new image | new_name="my_photomosaic.jpg" | "photomosaic.jpg" | |
+| num_images | Number of images that will be used to create the image. If not specified, it will be create will all the iamges in the images_folder | 20 | 50 | [3,num_images] |
 
 #### Examples (create_img)
 ```python
@@ -96,16 +96,22 @@ Function that picks the best images from the given set of images.
 
 #### Arguments (get_best)
 
-| argument | description | example | default value | Required |
-| -------- | ----------- | ------- | ------------- | -------- |
-| folder | Folder of the set of images | "landscapes" | "animals" | Yes |
-| min_color_diff | The minumum color difference between the images (the more difference, the less images) | 10 | 20 | No |
+| argument | description | example | default value | Range |
+| -------- | ----------- | ------- | ------------- | ----- |
+| folder | Folder of the set of images | "landscapes" | "animals" | |
+| min_color_diff | The minumum color difference between the images (the more difference, the less images) | 10 | 20 | [0,765] |
+| max_color_deviation | The maximum average color deviation from the average color in the images. So that there are not many images with, for example, a green half and a black half | 150 | 100 | [0,765] |
 
 #### Examples (get_best)
 ```python
 get_best(
     folder=         "animals",
     min_color_diff= 20,
+)
+get_best(
+    folder=                 "animals",
+    min_color_diff=         0,
+    max_color_deviation=    100
 )
 ```
 
@@ -118,11 +124,11 @@ Creates a new folder with the best images to be used as a palette for a main ima
 
 #### Arguments (get_best_for_main)
 
-| argument | description | example | default value | Required |
-| -------- | ----------- | ------- | ------------- | -------- |
-| main_image | Path of the main image from where the color palette will be created | img2_high-res.jpeg | | Yes |
-| folder | Folder of the set of images | "landscapes" | "animals" | Yes |
-| num_images | Number of images to pick | 10 | 20 | No |
+| argument | description | example | default value | Range |
+| -------- | ----------- | ------- | ------------- | ----- |
+| main_image | Path of the main image from where the color palette will be created | img2_high-res.jpeg | | |
+| folder | Folder of the set of images | "landscapes" | "animals" | |
+| num_images | Number of images to pick | 10 | 20 | [3,num_images] |
 
 #### Examples
 ```python
@@ -142,9 +148,9 @@ Function that removes the duplicate images from the given folder.
 
 #### Arguments (remove_duplicates)
 
-| argument | description | example | default value | Required |
-| -------- | ----------- | ------- | ------------- | -------- |
-| folder | Folder of the set of images | "landscapes" | "animals" | Yes |
+| argument | description | example | default value |
+| -------- | ----------- | ------- | ------------- |
+| folder | Folder of the set of images | "landscapes" | "animals" |
 
 #### Examples (remove_duplicates)
 ```python
@@ -161,10 +167,10 @@ Function that resizes the images in the given folder to the given size.
 
 #### Arguments (resize_images)
 
-| argument | description | example | default value | Required |
-| -------- | ----------- | ------- | ------------- | -------- |
-| folder | Folder with the images to resize | "images/landscapes" | "images/animals" | Yes |
-| size | Size of the images. It's ust a number, since the set of images has to be squared | 500 | 1000 | Yes |
+| argument | description | example | default value | Range |
+| -------- | ----------- | ------- | ------------- | ----- |
+| folder | Folder with the images to resize | "images/landscapes" | "images/animals" | |
+| size | Size of the images. It's ust a number, since the set of images has to be squared | 500 | 1000 | [1,...] |
 
 #### Examples (resize_images)
 ```python
@@ -173,6 +179,36 @@ resize_images(
   size=   1000,
 )
 ```
+
+## Possible errors
+
+If you get the error: `zsh: killed python3 main.py`, it means that the program is taking too much memory.
+
+To solve it, you can try to reduce the size of the resized images or of the main image.
+
+
+### Function: treat_images()
+
+#### Description (treat_images)
+
+Resizes files from a folder and removes duplicates
+
+#### Arguments (treat_images)
+
+| argument | description | example | default value | Range |
+| -------- | ----------- | ------- | ------------- | ----- |
+| folder | Folder with the images | "images/landscapes" | "images/animals" | |
+| size | Size that the new images will have | 500 | 1000 | [1,...] |
+
+#### Examples (treat_images)
+```python
+treat_images(
+  folder=         "images/animals",
+  size=           1000,
+)
+treat_images()
+```
+
 
 ## Possible errors
 

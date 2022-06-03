@@ -1,5 +1,6 @@
 import numpy as np
 from PIL import Image
+Image.MAX_IMAGE_PIXELS = 933120000
 import os
 import cv2
 import shutil
@@ -30,21 +31,44 @@ class Ansi:
 #------------------------------------------------------------------------------
 # Removes duplicate images from a folder
 
-def remove_duplicates(folder="animals"):
+def remove_duplicates(folder="images/animals"):
     print(f"{Ansi.GREEN}Removing duplicates...{Ansi.RESET}")
-    dir = f"images/{folder}"
     num_removed = 0
     toRemove = []
 
-    for img1 in os.listdir(dir):
-        for img2 in os.listdir(dir):
-            if img1 != img2 and img2 not in toRemove and img1 not in toRemove and filecmp.cmp(f"{dir}/{img1}", f"{dir}/{img2}"):
+    for img1 in os.listdir(folder):
+        for img2 in os.listdir(folder):
+            if img1 != img2 and img2 not in toRemove and img1 not in toRemove and filecmp.cmp(f"{folder}/{img1}", f"{folder}/{img2}"):
                 toRemove.append(img2)
                 num_removed += 1
 
     for file in toRemove:
-        os.remove(f"{dir}/{file}")
+        os.remove(f"{folder}/{file}")
     print(f"{num_removed} duplicates removed")
+
+#------------------------------------------------------------------------------
+# Resizes each image from the given folder to the given size
+
+def resize_images(folder="images/animals", size=1000):
+    i = 0
+    for file in os.listdir(folder):
+        if not file.startswith('.'):
+            print(f"{i}. {Ansi.GREEN}Resizing{Ansi.RESET} {file}")
+            img = Image.open(f"{folder}/{file}").resize((size, size))
+            if file[:2] == "r_": 
+                fileName = file
+            else:
+                fileName = f"r_{file}"
+                os.remove(f"{folder}/{file}")
+            img.save(f"{folder}/{fileName}")
+            i += 1
+
+#------------------------------------------------------------------------------
+# Resizes each image from the given folder to the given size      
+
+def treat_images(folder="images/animals", size=1000):
+    resize_images(folder, size)
+    remove_duplicates(folder)
 
 #------------------------------------------------------------------------------
 # Gets the average value of each primary color of each image in the resized images folder by reducing the size of each image to 1 pixel
@@ -52,7 +76,7 @@ def remove_duplicates(folder="animals"):
 def get_colors(folder, files=None):
     res = []
 
-    print(f"{Ansi.CYAN}Analyzing images...{Ansi.RESET}")
+    print(f"{Ansi.CYAN}Analyzing the average colors...{Ansi.RESET}")
     for file in files:
         img = Image.open(f"{folder}/{file}").resize((1, 1))
         res.append(img.getpixel((0,0)))
@@ -71,23 +95,6 @@ def closest(arr, color):
             min_diff = sum(diffs)
             index = i
     return index
-
-#------------------------------------------------------------------------------
-# Resizes each image from the given folder to the given size
-
-def resize_images(folder="images/animals", size=1000):
-    i = 0
-    for file in os.listdir(folder):
-        if not file.startswith('.'):
-            print(f"{i}. {Ansi.GREEN}Resizing{Ansi.RESET} {file}")
-            img = Image.open(f"{folder}/{file}").resize((size, size))
-            if file[:2] == "r_": 
-                fileName = file
-            else:
-                fileName = f"r_{file}"
-                os.remove(f"{folder}/{file}")
-            img.save(f"{folder}/{fileName}")
-            i += 1
 
 #------------------------------------------------------------------------------
 # Creates the needed folders
@@ -131,9 +138,30 @@ def get_best_for_main(main_image, folder="animals", num_images=20):
         new_index += 1
 
 #------------------------------------------------------------------------------
+# Gets the average deviation from the average color of each image
+
+def get_color_deviation(image_path, avg_color, size_to_test=10):
+    img = Image.open(image_path).resize((size_to_test,size_to_test))
+    img_data = np.array(img).flatten()
+    s = 0
+    for pixel in img_data:
+        s += np.sum(np.absolute(np.subtract(pixel,avg_color)))
+
+    return s/len(img_data)
+
+def get_color_deviations(folder, files, avg_colors, size_to_test=10):
+    res = []
+
+    print(f"{Ansi.CYAN}Analyzing the average color deviations...{Ansi.RESET}")
+    for i,file in enumerate(files):
+        res.append(get_color_deviation(f"{folder}/{file}", avg_colors[i]))
+
+    return np.array(res)
+
+#------------------------------------------------------------------------------
 # Creates a new folder with the images from the given folder, removing the images with similar colors
 
-def get_best(folder="animals", min_color_diff=20):
+def get_best(folder="animals", min_color_diff=20, max_color_deviation=100):
     path = f"images/{folder}"
     new_path = f"images/best_{folder}"
 
@@ -143,6 +171,7 @@ def get_best(folder="animals", min_color_diff=20):
 
     files = np.array([f for f in sorted(os.listdir(path)) if f.endswith(".jpg")])
     images_avg_color = get_colors(path, files)
+    images_avg_deviation = get_color_deviations(path, files, images_avg_color)
     best_images = []
     new_index = 0
     
@@ -151,7 +180,7 @@ def get_best(folder="animals", min_color_diff=20):
         valid = True
         for color in best_images:
             diffs = [ abs(rgb[j] - color[j]) for j in range(3) ]
-            if sum(diffs) <= min_color_diff:
+            if sum(diffs) <= min_color_diff or images_avg_deviation[i] > max_color_deviation:
                 valid = False
                 break
         if valid:
@@ -173,7 +202,7 @@ def create_img(main_image, images_size=50, **args):
     new_name = args.get('new_name', "photomosaic.jpg")
     num_images = args.get('num_images', -1)
 
-    if num_images != -1:
+    if num_images != -1 or num_images > len(os.listdir(images_folder)):
         get_best_for_main(main_image, images_folder_name,num_images)
         images_folder = f"images/best_{images_folder_name}_{main_image.split('.')[0]}"
 
@@ -203,10 +232,19 @@ startTime = time.time()
 #------------------------------------------------------------------------------
 """
 remove_duplicates("animals")
+resize_images(
+    folder=         "images/animals",
+    size=           1000,
+)
+treat_images(
+    folder=         "images/animals",
+    size=           1000,
+)
 
 get_best(
-    folder=             "animals",
-    min_color_diff=     20,
+    folder=                 "animals",
+    min_color_diff=         10,
+    max_color_deviation=    200
 )
 
 get_best_for_main(
@@ -215,26 +253,26 @@ get_best_for_main(
     num_images=     20
 )
 
-resize_images(
-    folder=         "images/animals",
-    size=           1000,
-)
-
 create_img( 
     main_image=     "img1_high-res.jpeg", 
     images_size=    50, 
     images_folder=  "animals",
     new_name=       "photomosaic.jpg",
-    num_images=     5
+    num_images=     20
 )
 """
 #------------------------------------------------------------------------------
+get_best(
+    folder=                 "animals",
+    min_color_diff=         10,
+    max_color_deviation=    200
+)
 create_img( 
-    main_image=     "img1_high-res.jpeg", 
+    main_image=     "img2_high-res.jpeg", 
     images_size=    50, 
-    images_folder=  "animals",
+    images_folder=  "best_animals",
     new_name=       "photomosaic.jpg",
-    num_images=     10
+    num_images=     -1
 )
 #------------------------------------------------------------------------------
 print(f'{Ansi.CYAN}Done in: {round(time.time() - startTime,4)}s{Ansi.RESET}')
