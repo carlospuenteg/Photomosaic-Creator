@@ -15,7 +15,7 @@
 
 ## 1. Introduction
 
-This program allows you to create a photomosaic from a set of images.
+This script allows you to create a photomosaic from a set of images.
 
 You can use the preset sets/folders of images or you can upload your own folders to the `images` folder.
 
