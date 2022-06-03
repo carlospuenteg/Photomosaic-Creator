@@ -1,6 +1,5 @@
 import numpy as np
-from PIL import Image
-Image.MAX_IMAGE_PIXELS = 933120000
+from PIL import Image; Image.MAX_IMAGE_PIXELS = 933120000
 import os
 import cv2
 import shutil
@@ -77,14 +76,14 @@ def treat_images(folder="images/animals", size=1000):
 #------------------------------------------------------------------------------
 # Gets the average value of each primary color of each image in the resized images folder by reducing the size of each image to 1 pixel
 
-def get_colors(folder, files=None):
-    res = []
+def get_avg_color(path):
+    return Image.open(path).resize((1, 1)).getpixel((0,0))
 
+def get_avg_colors(folder, files):
+    res = []
     print(f"{Ansi.CYAN}Analyzing the average colors...{Ansi.RESET}")
     for file in files:
-        img = Image.open(f"{folder}/{file}").resize((1, 1))
-        res.append(img.getpixel((0,0)))
-
+        res.append(get_avg_color(f"{folder}/{file}"))
     return np.array(res)
 
 #------------------------------------------------------------------------------
@@ -128,7 +127,7 @@ def get_best_colors(image_path, num_colors=20):
     palette = color_thief.get_palette(color_count=count)
     return np.array(palette)
 
-def get_best_for_main(main_image, folder="animals", num_images=20):
+def get_best_colors_main(main_image, folder="animals", num_images=20):
     path = f"images/{folder}"
     new_path = f"images/best_{folder}_{main_image.split('.')[0]}"
     main_image_path = f"main-images/{main_image}"
@@ -136,7 +135,7 @@ def get_best_for_main(main_image, folder="animals", num_images=20):
     clean_folder(new_path)
 
     files = np.array([f for f in sorted(os.listdir(path)) if f.endswith(".jpg")])
-    images_avg_color = get_colors(path, files)
+    images_avg_color = get_avg_colors(path, files)
     new_index = 0
     
     print(f"{Ansi.MAGENTA}Obtaining the best images...{Ansi.RESET}")
@@ -150,81 +149,56 @@ def get_best_for_main(main_image, folder="animals", num_images=20):
 #------------------------------------------------------------------------------
 # Gets the average deviation from the average color of each image
 
-def get_color_deviation(image_path, avg_color, size_to_test=10):
+def check_color_deviation(image_path, avg_color, max, size_to_test=10):
+    if max >= 765: return True
     img = Image.open(image_path).resize((size_to_test,size_to_test))
+
     img_data = np.array(img).flatten()
     s = 0
     for pixel in img_data:
         s += np.sum(np.absolute(np.subtract(pixel,avg_color)))
 
-    return s/len(img_data)
-
-def get_color_deviations(folder, files, avg_colors, size_to_test=10):
-    res = []
-
-    print(f"{Ansi.CYAN}Analyzing the average color deviations...{Ansi.RESET}")
-    for i,file in enumerate(files):
-        res.append(get_color_deviation(f"{folder}/{file}", avg_colors[i]))
-
-    return np.array(res)
+    return s/len(img_data) <= max
 
 #------------------------------------------------------------------------------
 # Gets the average contrast in each image
 
-def get_contrasts(image_path):
+def check_contrasts(image_path, max):
+    if max >= 765: return True
     img = np.array(Image.open(image_path).resize((4, 4)))
+
     color_left = np.average(img[:2,:].reshape(8,3), axis=0)
     color_right = np.average(img[2:,:].reshape(8,3), axis=0)
+    if sum(np.absolute(np.subtract(color_right,color_left))) > max:
+        return False
+
     color_top = np.average(img[:,:2].reshape(8,3), axis=0)
     color_bottom = np.average(img[:,2:].reshape(8,3), axis=0)
+    if sum(np.absolute(np.subtract(color_bottom,color_top))) > max:
+        return False
 
-    return np.array([
-        sum(np.absolute(np.subtract(color_right,color_left))),
-        sum(np.absolute(np.subtract(color_bottom,color_top))),
-    ])
-
-def get_images_contrasts(folder, files):
-    res = []
-
-    print(f"{Ansi.CYAN}Analyzing the average contrasts...{Ansi.RESET}")
-    for file in files:
-        res.append(get_contrasts(f"{folder}/{file}"))
-
-    return np.array(res)
-
+    return True
+        
 #------------------------------------------------------------------------------
 # Creates a new folder with the images from the given folder, removing the images with similar colors
 
-def get_best(folder="animals", min_color_diff=0, max_color_deviation=200, max_contrast=200):
+def get_best(folder="animals", max_color_deviation=765, max_contrast=765):
     path = f"images/{folder}"
     new_path = f"images/best_{folder}"
 
     clean_folder(new_path)
 
     files = np.array([f for f in sorted(os.listdir(path)) if f.endswith(".jpg")])
-    images_avg_color = get_colors(path, files)
-    images_avg_deviation = get_color_deviations(path, files, images_avg_color)
-    images_contrasts = get_images_contrasts(path, files)
-    best_images = []
-    new_index = 0
     
     print(f"{Ansi.MAGENTA}Obtaining the best images...{Ansi.RESET}")
-    for i,rgb in enumerate(images_avg_color):
-        valid = True
-        for color in best_images:
-            diffs = [ abs(rgb[j] - color[j]) for j in range(3) ]
-            if sum(diffs) <= min_color_diff or images_avg_deviation[i] > max_color_deviation or images_contrasts[i][0] > max_contrast or images_contrasts[i][1] > max_contrast:
-                valid = False
-                break
-        if valid:
-            best_images.append(rgb)
-            img = Image.open(f"{path}/{files[i]}")
-            img.save(f"{new_path}/{new_index}.jpg")
-            print(f"{Ansi.YELLOW}Saved{Ansi.RESET} image {new_index}")
-            new_index += 1
+    for i,file in enumerate(files):
+        if check_contrasts(f"{path}/{file}", max_contrast) and check_color_deviation(f"{path}/{file}", get_avg_color(f"{path}/{file}"), max_color_deviation):
+            img = Image.open(f"{path}/{file}")
+            img.save(f"{new_path}/{file}.jpg")
+            print(f"{Ansi.YELLOW}Saved{Ansi.RESET} image {file}")
     
-    print("Previous images: " + str(len(images_avg_color)))
-    print("Best images: " + str(len(best_images)))
+    print(f"Previous images: {len(files)}")
+    print(f"Best images: {len(os.listdir(new_path))}")
 
 #------------------------------------------------------------------------------
 # This is executed when the script is run
@@ -239,13 +213,13 @@ def create_img(main_image, images_size=50, images_folder="animals", new_name="ph
         return
 
     if num_images != -1 or num_images > len(os.listdir(images_folder)):
-        get_best_for_main(main_image, images_folder_name,num_images)
+        get_best_colors_main(main_image, images_folder_name,num_images)
         images_folder = f"images/best_{images_folder_name}_{main_image.split('.')[0]}"
 
     create_folders()
 
     files = np.array([f for f in sorted(os.listdir(images_folder)) if f.endswith(".jpg")])
-    images_avg_color = get_colors(images_folder, files)
+    images_avg_color = get_avg_colors(images_folder, files)
 
     images = [ np.array(Image.open(f"{images_folder}/{file}").resize((images_size, images_size)))[:,:,::-1] for file in files ] # [:,:,::-1] to convert from BGR to RGB
     new_img_arr = np.zeros((len(main_img)*images_size, len(main_img[0])*images_size, 3), dtype=np.uint8)
@@ -262,9 +236,18 @@ def create_img(main_image, images_size=50, images_folder="animals", new_name="ph
 
 #########################################################################################
 # This is executed when the script is run
-
+#------------------------------------------------------------------------------
 startTime = time.time()
 #------------------------------------------------------------------------------
+get_best(
+    folder=             "animals",
+    max_contrast=       150,
+    max_color_deviation=200
+)
+#------------------------------------------------------------------------------
+print(f'{Ansi.CYAN}Done in: {round(time.time() - startTime,4)}s{Ansi.RESET}')
+#------------------------------------------------------------------------------
+
 """
 remove_duplicates("animals")
 resize_images(
@@ -277,9 +260,9 @@ treat_images(
 )
 
 get_best(
-    folder=                 "animals",
-    min_color_diff=         10,
-    max_color_deviation=    200
+    folder=             "animals",
+    max_contrast=       150,
+    max_color_deviation=200
 )
 
 get_best_for_main(
@@ -289,19 +272,9 @@ get_best_for_main(
 )
 
 create_img( 
-    main_image=     "img1_high-res.jpeg", 
+    main_image=     "lion-h.jpeg", 
     images_size=    50, 
-    images_folder=  "animals",
-    new_name=       "photomosaic.jpg",
-    num_images=     20
-)
-"""
-#------------------------------------------------------------------------------
-create_img( 
-    main_image=     "lion-m.jpeg", 
-    images_size=    50,
     images_folder=  "best_animals",
     new_name=       "photomosaic.jpg",
 )
-#------------------------------------------------------------------------------
-print(f'{Ansi.CYAN}Done in: {round(time.time() - startTime,4)}s{Ansi.RESET}')
+"""
