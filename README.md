@@ -1,4 +1,4 @@
-# Photomosaic Creator
+# Photomosaic Creator
 
 ## Index
 - [Introduction](#1-introduction)
