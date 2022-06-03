@@ -34,6 +34,8 @@ Open the terminal, go to this path and type:
 python3 main.py
 ```
 
+Then, after the script runs, the result should appear in the `output` folder.
+
 
 ## 4. How it works
 
@@ -88,6 +90,7 @@ create_photomosaic(
     save_zooms=     False,
     resize_main=    False
 )
+
 create_photomosaic( 
     main_image=     "elephant-h.jpg", 
     images_size=    50,
@@ -96,6 +99,7 @@ create_photomosaic(
     num_images=     255,
     save_zooms=     True,
 )
+
 create_photomosaic( 
     main_image=     "tiger-m.jpg", 
     images_size=    50,
@@ -134,6 +138,7 @@ get_best(
     max_contrast=           765,
     size=                   1000
 )
+
 get_best(
     folder=                 "animals",
     max_avg_color_deviation=120,
@@ -164,6 +169,7 @@ treat_images(
     folder= "animals",
     size=   1000
 )
+
 treat_images(
     folder= "landscapes",
     size=   500
@@ -190,6 +196,7 @@ Creates a new folder called `$all` inside the `images` folder, with all the imag
 create_all_folder(
     size=   200
 )
+
 create_all_folder(
     size=   100
 )

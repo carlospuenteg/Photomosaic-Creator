@@ -66,6 +66,30 @@ def remove_duplicates(folder="animals"):
     print(f"{num_removed} duplicates removed")
 
 #------------------------------------------------------------------------------
+# Resize image
+
+def resize_img(img, size):
+    init_width = img.size[0]
+    init_height = img.size[1]
+    new_width = size[0]
+    new_height = size[1]
+    if (len(size) != 2):
+        print(f"{Ansi.RED}Error: size must be a list of length 2{Ansi.RESET}"); return
+    if not new_width or not new_height:
+        if not new_width and new_height:
+            new_width = int(init_width / (init_height / new_height))
+        elif not new_height and new_width:
+            new_height = int(init_height / (init_width / new_width))
+        else:
+            print(f"{Ansi.RED}Error: Width or height must be specified{Ansi.RESET}"); return
+    if new_width > init_width:
+        new_width = init_width
+    if new_height > init_height:
+        new_height = init_height
+    resized_img = img.resize((new_width, new_height))
+    return resized_img
+
+#------------------------------------------------------------------------------
 # Resizes each image from the given folder to the given size
 
 def resize_images(folder="animals", size=1000):
@@ -80,9 +104,8 @@ def resize_images(folder="animals", size=1000):
 # Resizes each image from the given folder to the given size      
 
 def treat_images(folder="animals", size=1000):
-    dir = f"images/{folder}"
-    resize_images(dir, size)
-    remove_duplicates(dir)
+    resize_images(folder, size)
+    remove_duplicates(folder)
 
 #------------------------------------------------------------------------------
 # Resizes each image from the given folder to the given size      
@@ -288,7 +311,7 @@ def save_lowres_img(img_arr, new_path, shape, quality=95):
 #------------------------------------------------------------------------------
 # Create a zoomed version of an image
 
-def create_zoom_img(img_arr, full_shape, main_img_shape, zoom):
+def create_zoom_img(img_arr, full_shape, main_img_shape, zoom, max_res):
     center_x = full_shape[0]//2
     center_y = full_shape[1]//2
     left = center_y - int(full_shape[1]/(zoom*2))
@@ -296,13 +319,16 @@ def create_zoom_img(img_arr, full_shape, main_img_shape, zoom):
     top = center_x - int(full_shape[0]/(zoom*2))
     bottom = center_x + int(full_shape[0]/(zoom*2))
     img = img_arr[top:bottom, left:right]
-    img_res = cv2.resize(img, (main_img_shape[1], main_img_shape[0]), interpolation=cv2.INTER_AREA)
+    if main_img_shape[0] > main_img_shape[1]:
+        img_res = cv2.resize(img, (max_res, max_res*main_img_shape[0]//main_img_shape[1]), interpolation=cv2.INTER_AREA)
+    else:
+        img_res = cv2.resize(img, (max_res*main_img_shape[0]//main_img_shape[1], max_res), interpolation=cv2.INTER_AREA)
     return img_res
-
+    
 #------------------------------------------------------------------------------
 # Saved zoom images of the photomosaic
 
-def save_zoom_images(img_arr, new_folder, new_name, main_img_shape, images_size, quality=95, min_images=5, zoom_incr=2):
+def save_zoom_images(img_arr, new_folder, new_name, main_img_shape, images_size, quality=95, max_res=1080, min_images=3, zoom_incr=2):
     full_shape = img_arr.shape
     zoom_path = f"{new_folder}/zoom"
     
@@ -310,7 +336,7 @@ def save_zoom_images(img_arr, new_folder, new_name, main_img_shape, images_size,
     zoom = zoom_incr
     while min(full_shape[0], full_shape[1])/zoom > images_size*min_images:
         save_img(
-            create_zoom_img(img_arr, full_shape, main_img_shape, zoom), 
+            create_zoom_img(img_arr, full_shape, main_img_shape, zoom, max_res), 
             f"{zoom_path}/{new_name}_zoom_{zoom}.jpg", 
             quality)
         zoom *= zoom_incr
@@ -318,40 +344,16 @@ def save_zoom_images(img_arr, new_folder, new_name, main_img_shape, images_size,
 #------------------------------------------------------------------------------
 # Save a GIF of the zoomed images of the photomosaic
 
-def save_zooms_gif(img_arr, new_folder, new_name, main_img_shape, images_size, quality=95, min_images=3, zoom_incr=1.3):
+def save_zooms_gif(img_arr, new_folder, new_name, main_img_shape, images_size, quality=95, max_res=1080, min_images=3, zoom_incr=1.3):
     full_shape = img_arr.shape
     gif_images = []
     zoom = 1
     while min(full_shape[0], full_shape[1])/zoom > images_size*min_images:
-        zoom_img = cv2.cvtColor(create_zoom_img(img_arr, full_shape, main_img_shape, zoom), cv2.COLOR_BGR2RGB)
+        zoom_img = cv2.cvtColor(create_zoom_img(img_arr, full_shape, main_img_shape, zoom, max_res), cv2.COLOR_BGR2RGB)
         gif_images.append(Image.fromarray(zoom_img))
         zoom *= zoom_incr
 
     save_gif(gif_images, f"{new_folder}/{new_name}_zoom.gif", quality)
-
-#------------------------------------------------------------------------------
-# Resize image
-
-def resize_img(img, size):
-    init_width = img.size[0]
-    init_height = img.size[1]
-    new_width = size[0]
-    new_height = size[1]
-    if (len(size) != 2):
-        print(f"{Ansi.RED}Error: size must be a list of length 2{Ansi.RESET}"); return
-    if not new_width or not new_height:
-        if not new_width and new_height:
-            new_width = int(init_width / (init_height / new_height))
-        elif not new_height and new_width:
-            new_height = int(init_height / (init_width / new_width))
-        else:
-            print(f"{Ansi.RED}Error: Width or height must be specified{Ansi.RESET}"); return
-    if new_width > init_width:
-        new_width = init_width
-    if new_height > init_height:
-        new_height = init_height
-    resized_img = img.resize((new_width, new_height))
-    return resized_img
 
 #------------------------------------------------------------------------------
 # This is executed when the script is run
@@ -418,11 +420,18 @@ def create_photomosaic(main_image="lion-h", images_size=50, images_folder="$b_$a
 #------------------------------------------------------------------------------
 startTime = time.time()
 #------------------------------------------------------------------------------
-get_best(
-    folder=                 "animals",
-    max_avg_color_deviation=120,
-    max_contrast=           150,
-    size=                   200
+create_photomosaic( 
+    main_image=     "tiger-vs.jpg", 
+    images_size=    200,
+    images_folder=  "$b_$all",
+    new_name=       "photomosaic",
+    num_images=     False,
+    quality=        85,
+    save_fullres=   True,
+    save_lowres=    True,
+    save_gif=       True,
+    save_zooms=     False,
+    resize_main=    False
 )
 #------------------------------------------------------------------------------
 print(f'{Ansi.CYAN}Done in: {round(time.time() - startTime,4)}s{Ansi.RESET}')
