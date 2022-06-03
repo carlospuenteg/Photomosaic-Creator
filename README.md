@@ -52,40 +52,29 @@ $ python3 main.py
 ## How it works
 
 1. Creates the needed folders
-2. If `resize=True` or if `the number of images in the folder is different than the number of images in the resized folder`or if `the size of the first image in the resized folder is different than the desired image size`: The `resized` folder will be replaced with the new resized images from the given set of images
-3. Obtains the average value of each primary color of each image in the `resized` folder by reducing the size of each image to 1 pixel
-4. Creates an array with all the numpy arrays of the images in the `resized` folder, converted from BGR to RGB
-5. Creates a numpy array from the selected main image in the `main-images` folder
-6. Creates the photomosaic by choosing the images with the closest average color for each pixel in the main image
-7. Saves the photomosaic in the `output` folder
+2. Obtains the average value of each primary color of each image in the selected folder by reducing the size of each image to 1 pixel
+3. Creates an array with all the numpy arrays of the images in the folder, resized to the desired size and converted from BGR to RGB
+4. Creates a numpy array from the selected main image in the `main-images` folder
+5. Creates the photomosaic by replacing each pixel of the main image with the images with the closest average color
+6. Saves the photomosaic in the `output` folder
 
 ### Main function (create_img())
 
 #### Arguments (create_img)
 | argument | description | example | default value | Required |
 | -------- | ----------- | ------- | ------------- | -------- |
-| 1 | Name of the main image | "my_img.jpeg" | | Yes |
+| 1 | Name of the main image | "img1.jpeg" | | Yes |
 | 2 | Size in px of the images that make up the main image | 100 | 50 | Yes |
-| resize | Whether or not you want to resize the images. It should always be set to false. Only give it the value `True` if you have stopped the script in the middle of the resizing or if there's been an error related to it | resize=False | False | No |
-| images_folder | Folder where the images are | images_folder="animals" | "animals" | No |
-| new_name | Name of the new image | new_name="photomosaic.jpg" | "photomosaic.jpg" | No |
-| rem_duplicates | Whether or not you want to remove the duplicate images from the folder | rem_duplicates=True | False | No |
+| images_folder | Folder where the set of images are | images_folder="animals" | "animals" | No |
+| new_name | Name of the new image | new_name="my_photomosaic.jpg" | "photomosaic.jpg" | No |
 
 #### Examples (create_img)
 ```python
 create_img( 
-    main_image=     "img1.jpeg", 
-    images_size=    50, 
-    images_folder=  "landscapes",
-    new_name=       "photomosaic.jpg"
-    resize=         False,
-)
-create_img( 
-    main_image=     "img2_high-res.jpeg", 
-    images_size=    50, 
-    images_folder=  "animals",
-    new_name=       "my_photomosaic.jpg"
-    resize=         False,
+    main_image=    "img1_high-res.jpeg", 
+    images_size=   50, 
+    images_folder= "animals",
+    new_name=      "photomosaic.jpg",
 )
 ```
 
@@ -100,18 +89,14 @@ Function that picks the best images from the given set of images.
 
 | argument | description | example | default value | Required |
 | -------- | ----------- | ------- | ------------- | -------- |
-| folder | Folder of the set of images | "landscapes" | | Yes |
+| folder | Folder of the set of images | "landscapes" | "animals" | Yes |
 | min_color_diff | The minumum color difference between the images (the more difference, the less images) | 10 | 20 | No |
 
 #### Examples (get_best)
 ```python
 get_best(
-    folder=             "animals",
-    min_color_diff=     20,
-)
-get_best(
-    folder=     "landscapes",
-    min_color_diff= 10
+    folder=         "animals",
+    min_color_diff= 20,
 )
 ```
 
@@ -126,16 +111,16 @@ Creates a new folder with the best images to be used as a palette for a main ima
 
 | argument | description | example | default value | Required |
 | -------- | ----------- | ------- | ------------- | -------- |
-| folder | Folder of the set of images | "landscapes" | | Yes |
-| main_image |Path of the main image from where the color palette will be created | img2_high-res.jpeg | | Yes |
-| num_images | Number of images to be used in the palette | 10 | 20 | No |
+| main_image | Path of the main image from where the color palette will be created | img2_high-res.jpeg | | Yes |
+| folder | Folder of the set of images | "landscapes" | "animals" | Yes |
+| num_images | Number of images to pick | 10 | 20 | No |
 
 #### Examples
 ```python
 get_best_for_main(
-    folder=         "animals",
-    main_image=     "img2_high-res.jpeg",
-    num_images=     29
+    main_image=  "img2_high-res.jpeg",
+    folder=      "animals",
+    num_images=  29
 )
 ```
 
@@ -150,7 +135,7 @@ Function that removes the duplicate images from the given folder.
 
 | argument | description | example | default value | Required |
 | -------- | ----------- | ------- | ------------- | -------- |
-| folder | Folder of the set of images | "landscapes" | | Yes |
+| folder | Folder of the set of images | "landscapes" | "animals" | Yes |
 
 #### Examples (remove_duplicates)
 ```python
@@ -169,18 +154,19 @@ Function that resizes the images in the given folder to the given size.
 
 | argument | description | example | default value | Required |
 | -------- | ----------- | ------- | ------------- | -------- |
-| size | Size of the images (just a number, since the set of images have to be squared) | 1000 | | Yes |
-| folder | Folder with the images to resize | "images/animals" | | Yes |
-| new_folder | Folder where the resized images will be saved | "images/animals" | | Yes |
-| same_name | Whether or not the images will have the same name (and be overwritten if the `new_folder` is the same as the `folder`) or if they will have a numerical name (0 to ...) | True | | Yes |
+| folder | Folder with the images to resize | "images/landscapes" | "images/animals" | Yes |
+| size | Size of the images. It's ust a number, since the set of images has to be squared | 500 | 1000 | Yes |
 
 #### Examples (resize_images)
 ```python
-resize_images(1000, IMAGES_FOLDER + "/animals", IMAGES_FOLDER + "/animals", True)
+resize_images(
+  folder= "images/animals",
+  size=   1000,
+)
 ```
 
 ## Possible errors
 
-If you get the error: `zsh: killed python3 main.py`, it means that the program is taking too long to run (it's taking too much memory).
+If you get the error: `zsh: killed python3 main.py`, it means that the program is taking too much memory.
 
 To solve it, you can try to reduce the size of the resized images or of the main image.
