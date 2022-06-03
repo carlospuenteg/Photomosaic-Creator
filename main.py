@@ -6,6 +6,7 @@ import shutil
 import time
 import filecmp
 from colorthief import ColorThief
+import imageio
 
 """
 Images taken from: 
@@ -37,7 +38,7 @@ class Ansi:
 
 def progress_bar(percent, text="", bar_len=30):
     done = round(percent*bar_len)
-    left = bar_len - done
+    left = bar_len - done # ━
 
     print(f"   {Ansi.GREEN}{'▩'*done}{Ansi.RESET}{'▩'*left} {f'[{round(percent*100,2)}%]'.ljust(8)} {Ansi.MAGENTA}{text}{Ansi.RESET}", end='\r')
 
@@ -255,9 +256,84 @@ def get_best_colors_main(main_image, folder="animals", num_images=20):
         shutil.copy(f"{path}/{files[closest_index]}", f"{new_path}/{files[closest_index]}")
 
 #------------------------------------------------------------------------------
+# Save an image
+
+def save_img(img, path, quality=95):
+    if not cv2.imwrite(path, img, [cv2.IMWRITE_JPEG_QUALITY, quality]):
+        print(f"{Ansi.RED}Unable to save the image. Image is probably too big.{Ansi.RESET}")
+    else:
+        print(f"{Ansi.GREEN}Image saved{Ansi.RESET} ({os.path.getsize(path)/2**20:.2f} MB)")
+
+#------------------------------------------------------------------------------
+# Save a GIF
+
+def save_gif(images, path, quality=95, frame_duration=250):
+    images[0].save(path, format="GIF", append_images=images, save_all=True, duration=frame_duration, loop=0, quality=quality)
+    # imageio.mimsave(f"{new_folder}/{new_name}_zoom.gif", gif_images, fps=0.1)
+    print(f"{Ansi.GREEN}GIF saved{Ansi.RESET} ({os.path.getsize(path)/2**20:.2f} MB)")
+
+#------------------------------------------------------------------------------
+# Save the photomosaic
+
+def save_full_img(img_arr, new_path, quality=95):
+    save_img(img_arr, new_path, quality)
+
+#------------------------------------------------------------------------------
+# Save a low res version of the photomosaic
+
+def save_lowres_img(img_arr, new_path, shape, quality=95):
+    img = cv2.resize(img_arr, (shape[1], shape[0]), interpolation=cv2.INTER_AREA)
+    save_img(img, new_path, quality)
+
+#------------------------------------------------------------------------------
+# Create a zoomed version of an image
+
+def create_zoom_img(img_arr, full_shape, main_img_shape, zoom):
+    center_x = full_shape[0]//2
+    center_y = full_shape[1]//2
+    left = center_y - int(full_shape[1]/(zoom*2))
+    right = center_y + int(full_shape[1]/(zoom*2))
+    top = center_x - int(full_shape[0]/(zoom*2))
+    bottom = center_x + int(full_shape[0]/(zoom*2))
+    img = img_arr[top:bottom, left:right]
+    img_res = cv2.resize(img, (main_img_shape[1], main_img_shape[0]), interpolation=cv2.INTER_AREA)
+    return img_res
+
+#------------------------------------------------------------------------------
+# Saved zoom images of the photomosaic
+
+def save_zoom_images(img_arr, new_folder, new_name, main_img_shape, images_size, quality=95, min_images=5, zoom_incr=2):
+    full_shape = img_arr.shape
+    zoom_path = f"{new_folder}/zoom"
+    
+    os.mkdir(zoom_path)
+    zoom = zoom_incr
+    while min(full_shape[0], full_shape[1])/zoom > images_size*min_images:
+        save_img(
+            create_zoom_img(img_arr, full_shape, main_img_shape, zoom), 
+            f"{zoom_path}/{new_name}_zoom_{zoom}.jpg", 
+            quality)
+        zoom *= zoom_incr
+
+#------------------------------------------------------------------------------
+# Save a GIF of the zoomed images of the photomosaic
+
+def save_zoom_gif(img_arr, new_folder, new_name, main_img_shape, images_size, quality=95, min_images=5, zoom_incr=1.3):
+    full_shape = img_arr.shape
+    gif_images = []
+    zoom = 1
+    while min(full_shape[0], full_shape[1])/zoom > images_size*min_images:
+        zoom_img = cv2.cvtColor(create_zoom_img(img_arr, full_shape, main_img_shape, zoom), cv2.COLOR_BGR2RGB)
+        gif_images.append(Image.fromarray(zoom_img))
+        zoom *= zoom_incr
+
+    save_gif(gif_images, f"{new_folder}/{new_name}_zoom.gif", quality)
+
+
+#------------------------------------------------------------------------------
 # This is executed when the script is run
 
-def create_img(main_image, images_size=50, images_folder="animals", new_name="photomosaic.jpg", num_images=-1):
+def create_img(main_image, images_size=50, images_folder="animals", new_name="photomosaic", num_images=-1, quality=85, save_lowres=True, save_full=True, save_zoom=True, save_gif=True):
     images_folder_name = images_folder
     images_folder = f"images/{images_folder_name}"
     main_img = np.array(Image.open(f"main-images/{main_image}"))
@@ -284,8 +360,21 @@ def create_img(main_image, images_size=50, images_folder="animals", new_name="ph
             index = closest(images_avg_color, pixel)
             new_img_arr[i*s : i*s+s , j*s : j*s+s] = images[index]
 
+    new_folder = f"output/{new_name}"
+    if os.path.exists(new_folder):
+        shutil.rmtree(new_folder)
+    os.mkdir(new_folder)
+
     print(f"{Ansi.YELLOW}Saving...{Ansi.RESET}")
-    cv2.imwrite(f"output/{new_name}", new_img_arr)
+    if save_full:
+        save_full_img(new_img_arr, f"{new_folder}/{new_name}.jpg", quality)
+    if save_lowres:
+        save_lowres_img(new_img_arr, f"{new_folder}/{new_name}_lowres.jpg", main_img.shape, quality)
+    if save_zoom:
+        save_zoom_images(new_img_arr, new_folder, new_name, main_img.shape, images_size, quality)
+    if save_gif:
+        save_zoom_gif(new_img_arr, new_folder, new_name, main_img.shape, images_size, quality)
+    
 
 #########################################################################################
 # This is executed when the script is run
@@ -293,10 +382,10 @@ def create_img(main_image, images_size=50, images_folder="animals", new_name="ph
 startTime = time.time()
 #------------------------------------------------------------------------------
 create_img( 
-    main_image=     "panda-h.jpeg", 
+    main_image=     "cannon-h.jpeg", 
     images_size=     50, 
     images_folder=  "$b_$all",
-    new_name=       "photomosaic.jpg",
+    new_name=       "cannon",
 )
 #------------------------------------------------------------------------------
 print(f'{Ansi.CYAN}Done in: {round(time.time() - startTime,4)}s{Ansi.RESET}')
