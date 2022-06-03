@@ -328,8 +328,9 @@ def create_zoom_img(img_arr, full_shape, main_img_shape, zoom, max_res):
     if main_img_shape[0] > main_img_shape[1]:
         img_res = cv2.resize(img, (max_res, max_res*main_img_shape[0]//main_img_shape[1]), interpolation=cv2.INTER_AREA)
     else:
-        img_res = cv2.resize(img, (max_res*main_img_shape[0]//main_img_shape[1], max_res), interpolation=cv2.INTER_AREA)
+        img_res = cv2.resize(img, (max_res*main_img_shape[1]//main_img_shape[0], max_res), interpolation=cv2.INTER_AREA)
     return img_res
+
     
 #------------------------------------------------------------------------------
 # Saved zoom images of the photomosaic

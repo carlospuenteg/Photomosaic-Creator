@@ -20,15 +20,40 @@ You can use the preset sets/folders of images or you can upload your own folders
 
 
 ## 2. Results
-<img src="./Examples/lion.jpg" alt="lion" height="500">
-<img src="./Examples/elephant.jpg" alt="elephant" height="500">
-<img src="./Examples/tiger.jpg" alt="tiger" height="500">
+<img src="./assets/lion.jpg" alt="lion" height="500">
+<img src="./assets/elephant.jpg" alt="elephant" height="500">
+<img src="./assets/tiger.jpg" alt="tiger" height="500">
 <br>
-<img src="./Examples/lion.gif" alt="lion" height="500">
-<img src="./Examples/elephant.gif" alt="elephant" height="500">
-<img src="./Examples/tiger.gif" alt="tiger" height="500">
+<img src="./assets/lion.gif" alt="lion" height="500">
+<img src="./assets/elephant.gif" alt="elephant" height="500">
+<img src="./assets/tiger.gif" alt="tiger" height="500">
 
 ## 3. Run the script
+Call the desired functions in this part of the `main.py` file:
+```python
+#########################################################################################
+startTime = time.time()
+#########################################################################################
+# Your calls go here
+
+create_photomosaic( 
+    main_image=     "lion-h.jpg", 
+    images_size=    50,
+    images_folder=  "$b_$all",
+    new_name=       "photomosaic",
+    num_images=     False,
+    quality=        85,
+    save_fullres=   True,
+    save_lowres=    True,
+    save_gif=       True,
+    save_zooms=     False,
+    resize_main=    False
+)
+#########################################################################################
+print(f'{Ansi.CYAN}Done in: {round(time.time() - startTime,4)}s{Ansi.RESET}')
+#########################################################################################
+```
+
 Open the terminal, go to this path and type:
 ```bash
 python3 main.py
