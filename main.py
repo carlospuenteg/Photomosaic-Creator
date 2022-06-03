@@ -5,6 +5,7 @@ import cv2
 import shutil
 import time
 import filecmp
+import colorsys
 
 """
 Images taken from: 
@@ -141,7 +142,7 @@ def rename_images(folder, new_folder):
 #------------------------------------------------------------------------------
 # Creates a new folder with the images from the given folder, removing the images with similar colors
 
-def get_best(folder, min_color_diff=20):
+def get_best_images(folder, min_color_diff=20):
     path = "images/" + folder
     temp_path = "images/temp"
     new_path = "images/best_" + folder
@@ -220,8 +221,8 @@ startTime = time.time()
 """
 remove_duplicates("animals")
 
-get_best(
-    folder=             "animals",
+get_best_images(
+    folder=         "animals",
     min_color_diff=     20,
 )
 
@@ -242,12 +243,17 @@ create_img(
 """
 #------------------------------------------------------------------------------
 
+get_best_images(
+    folder=         "animals",
+    min_color_diff=     20,
+)
+
 create_img( 
-    main_image=     "img1.jpeg", 
+    main_image=     "img2_high-res.jpeg", 
     images_size=    50, 
-    images_folder=  "animals",
+    images_folder=  "best_animals",
     new_name=       "photomosaic.jpg",
-    resize=         False
+    resize=         True
 )
 
 #------------------------------------------------------------------------------
