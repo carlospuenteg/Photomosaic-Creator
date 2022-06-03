@@ -4,8 +4,12 @@
 - [Index](#index)
 - [Introduction](#introduction)
   - [Main function (create_img)](#main-function-create_img)
-    - [Arguments (create_img)](#arguments-create_img)
-    - [Examples (create_img)](#examples-create_img)
+    - [Arguments](#arguments-create_img)
+    - [Examples](#examples-create_img)
+  - [get_best()](#get_best)
+    - [Description](#description)
+    - [Arguments](#arguments-get_best)
+    - [Examples](#examples-get_best)
 - [Possible errors](#possible-errors)
 
 ## Introduction
@@ -40,9 +44,9 @@ $ python3 main.py
 6. Creates the photomosaic by choosing the images with the closest average color for each pixel in the main image
 7. Saves the photomosaic in the `output` folder
 
-### Main function (create_img)
+### Main function (create_img())
 
-#### Arguments (create_img)
+#### Arguments (create_img())
 | argument | description | example | default value | Required |
 | -------- | ----------- | ------- | ------------- | -------- |
 | 1 | Name of the main image | "my_img.jpeg" | | Yes |
@@ -51,7 +55,7 @@ $ python3 main.py
 | images_folder | Folder where the images are | images_folder="animals" | "animals" | No |
 | new_name | Name of the new image | new_name="photomosaic.jpg" | "photomosaic.jpg" | No |
 
-#### Examples (create_img)
+#### Examples (create_img())
 ```python
 create_img( 
   "img1.jpeg", 
@@ -79,6 +83,27 @@ create_img(
     new_name="my_new_photomosaic.jpeg", 
     resize=True
 )
+```
+
+
+### get_best()
+
+#### Description
+
+Function that picks the best images from the given set of images.
+
+#### Arguments (get_best())
+
+| argument | description | example | default value | Required |
+| -------- | ----------- | ------- | ------------- | -------- |
+| folder | Folder of the set of images | "landscapes" | "animals" | No |
+| color_diff | The maximum color difference between the images | 10 | 20 | No |
+
+#### Examples (get_best())
+```python
+get_best()
+get_best("animals", 10)
+get_best("landscapes", 20)
 ```
 
 ## Possible errors

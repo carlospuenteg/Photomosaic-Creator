@@ -101,7 +101,7 @@ def rename_images(folder, new_folder):
 #------------------------------------------------------------------------------
 # Creates a new folder with the images from the given folder, removing the images with similar colors
 
-def get_best(folder="animals", color_diff=50):
+def get_best(folder="animals", color_diff=20):
     path = "images/" + folder
     temp_path = "images/temp"
     new_path = "images/best_" + folder
@@ -172,6 +172,6 @@ def create_img(main_image, images_size, **args): # resize=True, images_folder="a
 startTime = time.time()
 
 # get_best("animals", 20)
-create_img( "img1.jpeg" , 50 , resize=True , images_folder="best_animals" )
+create_img( "img1_high-res.jpeg" , 30 , resize=True , images_folder="best_animals" )
 
 print(f'{Ansi.CYAN}Done in: {round(time.time() - startTime,4)}s{Ansi.RESET}')
