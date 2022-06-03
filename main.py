@@ -421,7 +421,7 @@ def create_photomosaic(main_image="lion-h", images_size=50, images_folder="$b_$a
 startTime = time.time()
 #------------------------------------------------------------------------------
 create_photomosaic( 
-    main_image=     "tiger-vs.jpg", 
+    main_image=     "tiger-h.jpg", 
     images_size=    200,
     images_folder=  "$b_$all",
     new_name=       "photomosaic",
