@@ -75,18 +75,13 @@ $ python3 main.py
 
 #### Examples (create_img)
 ```python
+# Suggested
 create_img( 
-  main_image=     "img1_high-res.jpeg", 
+  main_image=     "canon-h.jpeg", 
   images_size=    50, 
-  images_folder=  "animals",
+  images_folder=  "best_animals",
   new_name=       "photomosaic.jpg",
-  num_images=     10
-)
-create_img( 
-  main_image=     "img1_high-res.jpeg", 
-  images_size=    50, 
-  images_folder=  "animals",
-  new_name=       "photomosaic.jpg",
+  num_images=     100
 )
 ```
 
@@ -105,16 +100,13 @@ Function that picks the best images from the given set of images.
 | max_color_deviation | The maximum average color deviation from the average color in the images. So that there are not many images with, for example, a green half and a black half | 150 | 765 | [0,765] |
 | max_contrast | The maximum contrast between the top-bottom or right-left that an image can have | 150 | 765 | [0,765] |
 
-Suggested:
-max_color_deviation: 60
-max_contrast: 100
-
 #### Examples (get_best)
 ```python
+# Suggested:
 get_best(
-    folder=                 "animals",
-    max_contrast=           100,
-    max_avg_color_deviation=150
+  folder=                 "animals",
+  max_avg_color_deviation=100,
+  max_contrast=           100
 )
 ```
 
