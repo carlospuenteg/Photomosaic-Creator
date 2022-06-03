@@ -52,11 +52,12 @@ $ python3 main.py
 ## How it works
 
 1. Creates the needed folders
-2. Obtains the average value of each primary color of each image in the selected folder by reducing the size of each image to 1 pixel
-3. Creates an array with all the numpy arrays of the images in the folder, resized to the desired size and converted from BGR to RGB
-4. Creates a numpy array from the selected main image in the `main-images` folder
-5. Creates the photomosaic by replacing each pixel of the main image with the images with the closest average color
-6. Saves the photomosaic in the `output` folder
+2. If `num_images` is specified, the function `get_best_for_main` will be called and the images obtained with it will be used to create the photomosaic.
+3. Obtains the average value of each primary color of each image in the selected folder by reducing the size of each image to 1 pixel
+4. Creates an array with all the numpy arrays of the images in the folder, resized to the desired size and converted from BGR to RGB
+5. Creates a numpy array from the selected main image in the `main-images` folder
+6. Creates the photomosaic by replacing each pixel of the main image with the images with the closest average color
+7. Saves the photomosaic in the `output` folder
 
 ### Main function (create_img())
 
@@ -67,14 +68,22 @@ $ python3 main.py
 | 2 | Size in px of the images that make up the main image | 100 | 50 | Yes |
 | images_folder | Folder where the set of images are | images_folder="animals" | "animals" | No |
 | new_name | Name of the new image | new_name="my_photomosaic.jpg" | "photomosaic.jpg" | No |
+| num_images | Number of images that will be used to create the image. If not specified, it will be create will all the iamges in the images_folder | 20 | 50 | No |
 
 #### Examples (create_img)
 ```python
 create_img( 
-    main_image=    "img1_high-res.jpeg", 
-    images_size=   50, 
-    images_folder= "animals",
-    new_name=      "photomosaic.jpg",
+  main_image=     "img1_high-res.jpeg", 
+  images_size=    50, 
+  images_folder=  "animals",
+  new_name=       "photomosaic.jpg",
+  num_images=     10
+)
+create_img( 
+  main_image=     "img1_high-res.jpeg", 
+  images_size=    50, 
+  images_folder=  "animals",
+  new_name=       "photomosaic.jpg",
 )
 ```
 
@@ -120,7 +129,7 @@ Creates a new folder with the best images to be used as a palette for a main ima
 get_best_for_main(
     main_image=  "img2_high-res.jpeg",
     folder=      "animals",
-    num_images=  29
+    num_images=  20
 )
 ```
 

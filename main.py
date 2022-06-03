@@ -168,8 +168,14 @@ def get_best(folder="animals", min_color_diff=20):
 # This is executed when the script is run
 
 def create_img(main_image, images_size=50, **args):
-    images_folder = f"images/{args.get('images_folder', 'animals')}"
+    images_folder_name = args.get('images_folder', 'animals')
+    images_folder = f"images/{images_folder_name}"
     new_name = args.get('new_name', "photomosaic.jpg")
+    num_images = args.get('num_images', -1)
+
+    if num_images != -1:
+        get_best_for_main(main_image, images_folder_name,num_images)
+        images_folder = f"images/best_{images_folder_name}_{main_image.split('.')[0]}"
 
     create_folders()
 
@@ -206,7 +212,7 @@ get_best(
 get_best_for_main(
     main_image=     "img2_high-res.jpeg",
     folder=         "animals",
-    num_images=     29
+    num_images=     20
 )
 
 resize_images(
@@ -215,10 +221,11 @@ resize_images(
 )
 
 create_img( 
-    main_image=     "img1.jpeg", 
+    main_image=     "img1_high-res.jpeg", 
     images_size=    50, 
     images_folder=  "animals",
     new_name=       "photomosaic.jpg",
+    num_images=     5
 )
 """
 #------------------------------------------------------------------------------
@@ -227,6 +234,7 @@ create_img(
     images_size=    50, 
     images_folder=  "animals",
     new_name=       "photomosaic.jpg",
+    num_images=     10
 )
 #------------------------------------------------------------------------------
 print(f'{Ansi.CYAN}Done in: {round(time.time() - startTime,4)}s{Ansi.RESET}')
