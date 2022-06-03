@@ -5,7 +5,7 @@ import cv2
 import shutil
 import time
 import filecmp
-import colorsys
+from colorthief import ColorThief
 
 """
 Images taken from: 
@@ -82,19 +82,6 @@ def closest(arr, color):
             index = i
     return index
 
-def closest2(arr, color):
-    index = 0
-    min_diff = 765
-    for i,rgb in enumerate(arr):
-        diffs = [ abs(rgb[j] - color[j]) for j in range(3) ]
-        if (sum(diffs) < min_diff):
-            min_diff = sum(diffs)
-            index = i
-    return [
-        index,
-        diffs
-    ]
-
 #------------------------------------------------------------------------------
 # Resizes each image from the given folder to the given size
 
@@ -140,9 +127,47 @@ def rename_images(folder, new_folder):
             i += 1
 
 #------------------------------------------------------------------------------
+# Creates a new folder with the best images to be used as a palette for a main image
+
+def get_best_colors(image_path, num_colors=20):
+    color_thief = ColorThief(image_path)
+    count = (num_colors+1) if num_colors >= 7 else num_colors if num_colors > 3 else 2
+    palette = color_thief.get_palette(color_count=count)
+    print(len(palette))
+    return np.array(palette)
+
+def get_best_for_main(folder, main_image, num_images=20):
+    path = f"images/{folder}"
+    temp_path = "images/temp"
+    new_path = f"images/best_{folder}_{main_image.split('.')[0]}"
+    main_image_path = f"{MAIN_IMAGES_FOLDER}/{main_image}"
+
+    if os.path.exists(temp_path):
+        shutil.rmtree(temp_path)
+    if os.path.exists(new_path):
+        shutil.rmtree(new_path)
+    os.makedirs(temp_path)
+    os.makedirs(new_path)
+
+    rename_images(path,temp_path)
+
+    images_avg_color = get_colors(temp_path)
+    new_index = 0
+    
+    print(f"{Ansi.MAGENTA}Obtaining the best images...{Ansi.RESET}")
+    for rgb in get_best_colors(main_image_path, num_images):
+        closest_index = closest(images_avg_color, rgb)
+        images_avg_color[closest_index] = [-255,-255,-255]
+        img = Image.open(temp_path + "/" + str(closest_index) + ".jpg")
+        img.save(new_path + "/" + str(new_index) + ".jpg")
+        new_index += 1
+
+    shutil.rmtree(temp_path)
+
+#------------------------------------------------------------------------------
 # Creates a new folder with the images from the given folder, removing the images with similar colors
 
-def get_best_images(folder, min_color_diff=20):
+def get_best(folder, min_color_diff=20):
     path = "images/" + folder
     temp_path = "images/temp"
     new_path = "images/best_" + folder
@@ -221,9 +246,15 @@ startTime = time.time()
 """
 remove_duplicates("animals")
 
-get_best_images(
-    folder=         "animals",
+get_best(
+    folder=             "animals",
     min_color_diff=     20,
+)
+
+get_best_for_main(
+    folder=         "animals",
+    main_image=     "img2_high-res.jpeg",
+    num_images=     29
 )
 
 resize_images(
@@ -243,17 +274,10 @@ create_img(
 """
 #------------------------------------------------------------------------------
 
-get_best_images(
+get_best_for_main(
     folder=         "animals",
-    min_color_diff=     20,
-)
-
-create_img( 
-    main_image=     "img2_high-res.jpeg", 
-    images_size=    50, 
-    images_folder=  "best_animals",
-    new_name=       "photomosaic.jpg",
-    resize=         True
+    main_image=     "img2_high-res.jpeg",
+    num_images=     2
 )
 
 #------------------------------------------------------------------------------

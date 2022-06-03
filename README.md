@@ -12,6 +12,10 @@
     - [Description](#description)
     - [Arguments](#arguments-get_best)
     - [Examples](#examples-get_best)
+  - [get_best_for_main()](#function-get_best_for_main)
+    - [Description](#description-get_best_for_main)
+    - [Arguments](#arguments-get_best_for_main)
+    - [Examples](#examples-get_best_for_main)
   - [remove_duplicates()](#function-remove_duplicates)
     - [Description](#description)
     - [Arguments](#arguments-remove_duplicates)
@@ -108,6 +112,30 @@ get_best(
 get_best(
     folder=     "landscapes",
     min_color_diff= 10
+)
+```
+
+
+### Function: get_best_for_main()
+
+#### Description (get_best_for_main)
+
+Creates a new folder with the best images to be used as a palette for a main image
+
+#### Arguments (get_best_for_main)
+
+| argument | description | example | default value | Required |
+| -------- | ----------- | ------- | ------------- | -------- |
+| folder | Folder of the set of images | "landscapes" | | Yes |
+| main_image |Path of the main image from where the color palette will be created | img2_high-res.jpeg | | Yes |
+| num_images | Number of images to be used in the palette | 10 | 20 | No |
+
+#### Examples
+```python
+get_best_for_main(
+    folder=         "animals",
+    main_image=     "img2_high-res.jpeg",
+    num_images=     29
 )
 ```
 
