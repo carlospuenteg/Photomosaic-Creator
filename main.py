@@ -149,12 +149,12 @@ def get_best_colors_main(main_image, folder="animals", num_images=20):
 
 def check_avg_color_deviation(image_path, avg_color, max):
     if max >= 765: return True
-    img = Image.open(image_path).resize((10,10))
+    img = Image.open(image_path).resize((3,3))
 
     img_data = np.array(img.getdata())
     s = 0
     for pixel in img_data:
-        s += np.sum(np.absolute(np.subtract(pixel,avg_color)))
+        s += sum(np.absolute(np.subtract(pixel,avg_color)))
 
     return s/len(img_data) <= max
 
@@ -165,6 +165,7 @@ def check_contrasts(image_path, max):
     if max >= 765: return True
     img = Image.open(image_path)
     img_4x4 = np.array(img.resize((4, 4)))
+    img_3x3 = np.array(img.resize((3, 3)).getdata())
 
     color_left = np.average(img_4x4[:2,:].reshape(8,3), axis=0)
     color_right = np.average(img_4x4[2:,:].reshape(8,3), axis=0)
@@ -204,7 +205,7 @@ def get_best(folder="animals", max_avg_color_deviation=765, max_contrast=765):
 #------------------------------------------------------------------------------
 # This is executed when the script is run
 
-def create_img(main_image, images_size=50, images_folder="animals", new_name="photomosaic.jpg", num_images=np.Infinity):
+def create_img(main_image, images_size=50, images_folder="animals", new_name="photomosaic.jpg", num_images=-1):
     images_folder_name = images_folder
     images_folder = f"images/{images_folder_name}"
     main_img = np.array(Image.open(f"main-images/{main_image}"))
