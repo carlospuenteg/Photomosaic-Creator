@@ -1,4 +1,3 @@
-import enum
 import numpy as np
 from PIL import Image; Image.MAX_IMAGE_PIXELS = 933120000
 import os
@@ -40,13 +39,9 @@ def progress_bar(percent, text="", bar_len=30):
     done = round(percent*bar_len)
     left = bar_len - done
 
-    done_str = '▩'*done # ▆ ▅ ▃ ▂ ▁
-    togo_str = '▩'*left
+    print(f"   {Ansi.GREEN}{'▩'*done}{Ansi.RESET}{'▩'*left} {f'[{round(percent*100,2)}%]'.ljust(8)} {Ansi.MAGENTA}{text}{Ansi.RESET}", end='\r')
 
-    print(f"   {Ansi.GREEN}{done_str}{Ansi.RESET}{togo_str} {f'[{round(percent*100,2)}%]'.ljust(8)} {Ansi.MAGENTA}{text}{Ansi.RESET}", end='\r')
-
-    if percent == 1:
-        print("✅")
+    if percent == 1: print("✅")
 
 #------------------------------------------------------------------------------
 # Removes duplicate images from a folder
@@ -71,20 +66,12 @@ def remove_duplicates(folder="images/animals"):
 # Resizes each image from the given folder to the given size
 
 def resize_images(folder="images/animals", size=1000):
-    i = 0
     files = os.listdir(folder)
 
     for i,file in enumerate(files):
         if not file.startswith('.'):
             progress_bar(i/(len(files)-1), text="Resizing")
-            img = Image.open(f"{folder}/{file}").resize((size, size))
-            if file[:2] == "r_": 
-                fileName = file
-            else:
-                fileName = f"r_{file}"
-                os.remove(f"{folder}/{file}")
-            img.save(f"{folder}/{fileName}")
-            i += 1
+            Image.open(f"{folder}/{file}").resize((size, size)).save(f"{folder}/{file}")
 
 #------------------------------------------------------------------------------
 # Resizes each image from the given folder to the given size      
@@ -97,10 +84,11 @@ def treat_images(folder="images/animals", size=1000):
 # Resizes each image from the given folder to the given size      
 
 def clean_folders():
-    for folder in os.listdir("images"):
+    folders = os.listdir("images")
+    for i,folder in enumerate(folders):
         if folder.startswith(BEST_FOLDER):
             shutil.rmtree(f"images/{folder}")
-            print(f"{Ansi.CYAN}Removed{Ansi.RESET} {folder}")
+            progress_bar(i/(len(folders)-1), text="Cleaning folders")
 
 #------------------------------------------------------------------------------
 # Creates a folder with all the images from the other folders
@@ -121,16 +109,10 @@ def create_all_folder(size=200):
 
 #------------------------------------------------------------------------------
 # Gets the index of the image with the most similar colors to the given pixel
-
 def closest(arr, color):
-    index = 0
-    min_diff = 765
-    for i,rgb in enumerate(arr):
-        diffs = [ abs(rgb[j] - color[j]) for j in range(3) ]
-        if (sum(diffs) < min_diff):
-            min_diff = sum(diffs)
-            index = i
-    return index
+    distances = np.sqrt(np.sum((arr-color)**2,axis=1))
+    index_of_smallest = np.where(distances==np.amin(distances))
+    return index_of_smallest[0][0]
 
 #------------------------------------------------------------------------------
 # Creates the needed folders
@@ -310,13 +292,8 @@ def create_img(main_image, images_size=50, images_folder="animals", new_name="ph
 #------------------------------------------------------------------------------
 startTime = time.time()
 #------------------------------------------------------------------------------
-get_best(
-    folder=                     "$all",
-    max_avg_color_deviation=    120,
-    max_contrast=               150
-)
 create_img( 
-    main_image=     "canon-h.jpeg", 
+    main_image=     "panda-h.jpeg", 
     images_size=     50, 
     images_folder=  "$b_$all",
     new_name=       "photomosaic.jpg",
@@ -340,7 +317,7 @@ get_best(
     max_contrast=               150
 )
 create_img( 
-    main_image=     "canon-h.jpeg", 
+    main_image=     "cannon-h.jpeg", 
     images_size=     50, 
     images_folder=  "$b_$all",
     new_name=       "photomosaic.jpg",
