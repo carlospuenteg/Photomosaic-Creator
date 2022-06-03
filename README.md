@@ -235,11 +235,11 @@ create_all_folder(
 
 ### `clean_best_folders`
 
-#### Explanation
+#### Explanation
 
 Deletes the best folders (the ones that start with `$b_`)
 
-#### Examples
+#### Examples
 
 ```python
 clean_best_folders()
