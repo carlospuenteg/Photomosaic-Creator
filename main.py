@@ -15,12 +15,13 @@ Images taken from:
 """
 
 #------------------------------------------------------------------------------
+# CONSTANTS
 
 BEST_FOLDER = "$b_"
 ALL_FOLDER = "$all"
 
 #------------------------------------------------------------------------------
-# ANSI COLORS for the terminal
+# ANSI color codes for the terminal
 
 class Ansi:
     BLACK = '\u001b[30m'
@@ -47,44 +48,46 @@ def progress_bar(percent, text="", bar_len=30):
 #------------------------------------------------------------------------------
 # Removes duplicate images from a folder
 
-def remove_duplicates(folder="images/animals"):
-    files = os.listdir(folder)
-    num_removed = 0
+def remove_duplicates(folder="animals"):
+    dir = f"images/{folder}"
     toRemove = []
+    num_removed = 0
 
+    files = os.listdir(dir)
     for i,img1 in enumerate(files):
         progress_bar(i/(len(files)-1), text="Removing duplicates")
-        for img2 in os.listdir(folder):
-            if img1 != img2 and img2 not in toRemove and img1 not in toRemove and filecmp.cmp(f"{folder}/{img1}", f"{folder}/{img2}"):
+        for img2 in os.listdir(dir):
+            if img1 != img2 and img2 not in toRemove and img1 not in toRemove and filecmp.cmp(f"{dir}/{img1}", f"{dir}/{img2}"):
                 toRemove.append(img2)
                 num_removed += 1
 
     for file in toRemove:
-        os.remove(f"{folder}/{file}")
+        os.remove(f"{dir}/{file}")
     print(f"{num_removed} duplicates removed")
 
 #------------------------------------------------------------------------------
 # Resizes each image from the given folder to the given size
 
-def resize_images(folder="images/animals", size=1000):
-    files = os.listdir(folder)
-
+def resize_images(folder="animals", size=1000):
+    dir = f"images/{folder}"
+    files = os.listdir(dir)
     for i,file in enumerate(files):
         if not file.startswith('.'):
             progress_bar(i/(len(files)-1), text="Resizing")
-            Image.open(f"{folder}/{file}").resize((size, size)).save(f"{folder}/{file}")
+            Image.open(f"{dir}/{file}").resize((size, size)).save(f"{dir}/{file}")
 
 #------------------------------------------------------------------------------
 # Resizes each image from the given folder to the given size      
 
-def treat_images(folder="images/animals", size=1000):
-    resize_images(folder, size)
-    remove_duplicates(folder)
+def treat_images(folder="animals", size=1000):
+    dir = f"images/{folder}"
+    resize_images(dir, size)
+    remove_duplicates(dir)
 
 #------------------------------------------------------------------------------
 # Resizes each image from the given folder to the given size      
 
-def clean_folders():
+def clean_best_folders():
     folders = os.listdir("images")
     for i,folder in enumerate(folders):
         if folder.startswith(BEST_FOLDER):
@@ -208,23 +211,20 @@ def get_best(folder="animals", max_avg_color_deviation=765, max_contrast=765, si
         print(f"{Ansi.RED}Folder ./{path} not found{Ansi.RESET}")
         return
 
+    # 1
     clean_folder(new_path)
 
+    # 2
     files = np.array([f for f in sorted(os.listdir(path)) if f.endswith(".jpg")])
-    images_size = np.array(Image.open(f"{path}/{files[0]}")).shape[0]
 
+    # 3
     avg_colors = get_avg_colors(path, files)
 
-    if images_size > size:
-        for i,file in enumerate(files):
-            if check_contrasts(f"{path}/{file}", max_contrast) and check_color_deviation(f"{path}/{file}", max_avg_color_deviation, avg_colors[i]):
-                copy_resized(f"{path}/{file}", f"{new_path}/{file}", file, size)
-            progress_bar(i/(len(files)-1), text="Obtaining the best images")
-    else:
-        for i,file in enumerate(files):
-            if check_contrasts(f"{path}/{file}", max_contrast) and check_color_deviation(f"{path}/{file}", max_avg_color_deviation, avg_colors[i]):
-                copy(f"{path}/{file}", f"{new_path}/{file}", file)
-            progress_bar(i/(len(files)-1), text="Obtaining the best images")
+    # 4
+    for i,file in enumerate(files):
+        if check_contrasts(f"{path}/{file}", max_contrast) and check_color_deviation(f"{path}/{file}", max_avg_color_deviation, avg_colors[i]):
+            Image.open(f"{path}/{file}").resize((size, size)).save(f"{new_path}/{file}")
+        progress_bar(i/(len(files)-1), text="Obtaining the best images")
 
     print(f"Previous images: {len(files)}")
     print(f"Best images: {len(os.listdir(new_path))}")
@@ -318,7 +318,7 @@ def save_zoom_images(img_arr, new_folder, new_name, main_img_shape, images_size,
 #------------------------------------------------------------------------------
 # Save a GIF of the zoomed images of the photomosaic
 
-def save_zoom_gif(img_arr, new_folder, new_name, main_img_shape, images_size, quality=95, min_images=3, zoom_incr=1.3):
+def save_zooms_gif(img_arr, new_folder, new_name, main_img_shape, images_size, quality=95, min_images=3, zoom_incr=1.3):
     full_shape = img_arr.shape
     gif_images = []
     zoom = 1
@@ -356,29 +356,40 @@ def resize_img(img, size):
 #------------------------------------------------------------------------------
 # This is executed when the script is run
 
-def create_img(main_image, images_size=50, images_folder="$b_$all", new_name="photomosaic", num_images=-1, quality=85, save_lowres=True, save_full=True, save_zoom=True, save_gif=True, resize_main=False):
+def create_photomosaic(main_image="lion-h", images_size=50, images_folder="$b_$all", new_name="photomosaic", num_images=False, quality=85, save_fullres=True, save_lowres=True, save_gif=True, save_zooms=True, resize_main=False):
     images_folder_name = images_folder
     images_folder = f"images/{images_folder_name}"
+
+    # 1
+    create_folders()
+
+    # 2
     main_img = Image.open(f"main-images/{main_image}")
     if resize_main:
         main_img = resize_img(main_img, (resize_main[0], resize_main[1]))
     main_img = np.array(main_img)
 
-    max_images = min(255, len(os.listdir(images_folder)))
-    min_images = 3
-    if num_images != -1:
+    # 3
+    if num_images:
+        max_images = min(255, len(os.listdir(images_folder)))
+        min_images = 3
         num_images = min_images if num_images < min_images else max_images if num_images > max_images else num_images
         get_best_colors_main(main_image, images_folder_name, num_images)
         images_folder = f"images/{images_folder_name}_{main_image.split('.')[0]}"
 
-    create_folders()
-
+    # 4
     files = np.array([f for f in sorted(os.listdir(images_folder)) if f.endswith(".jpg")])
+
+    # 5
     images_avg_color = get_avg_colors(images_folder, files)
 
+    # 6
     images = [ np.array(Image.open(f"{images_folder}/{file}").resize((images_size, images_size)))[:,:,::-1] for file in files ] # [:,:,::-1] to convert from BGR to RGB
+
+    # 7
     new_img_arr = np.zeros((len(main_img)*images_size, len(main_img[0])*images_size, 3), dtype=np.uint8)
 
+    # 8
     for i,line in enumerate(main_img):
         progress_bar(i/(len(main_img)-1), text=f"Creating the photomosaic")
         for j,pixel in enumerate(line):
@@ -386,20 +397,20 @@ def create_img(main_image, images_size=50, images_folder="$b_$all", new_name="ph
             index = closest(images_avg_color, pixel)
             new_img_arr[i*s : i*s+s , j*s : j*s+s] = images[index]
 
+    # 9
     new_folder = f"output/{new_name}"
-    if os.path.exists(new_folder):
-        shutil.rmtree(new_folder)
-    os.mkdir(new_folder)
+    clean_folder(new_folder)
 
+    # 10
     print(f"{Ansi.YELLOW}Saving...{Ansi.RESET}")
-    if save_full:
+    if save_fullres:
         save_full_img(new_img_arr, f"{new_folder}/{new_name}.jpg", quality)
     if save_lowres:
         save_lowres_img(new_img_arr, f"{new_folder}/{new_name}_lowres.jpg", main_img.shape, quality)
-    if save_zoom:
+    if save_zooms:
         save_zoom_images(new_img_arr, new_folder, new_name, main_img.shape, images_size, quality)
     if save_gif:
-        save_zoom_gif(new_img_arr, new_folder, new_name, main_img.shape, images_size, quality)
+        save_zooms_gif(new_img_arr, new_folder, new_name, main_img.shape, images_size, quality)
     
 
 #########################################################################################
@@ -407,34 +418,39 @@ def create_img(main_image, images_size=50, images_folder="$b_$all", new_name="ph
 #------------------------------------------------------------------------------
 startTime = time.time()
 #------------------------------------------------------------------------------
-create_img( 
-    main_image=     "lion-hd.jpg", 
-    new_name=       "lion",
-    images_size=    50,
-    quality=        75,
+get_best(
+    folder=                 "animals",
+    max_avg_color_deviation=120,
+    max_contrast=           150,
+    size=                   200
 )
 #------------------------------------------------------------------------------
 print(f'{Ansi.CYAN}Done in: {round(time.time() - startTime,4)}s{Ansi.RESET}')
 #########################################################################################
 """
-remove_duplicates("animals")
-resize_images(
-    folder=         "images/animals",
-    size=           1000,
-)
-treat_images()
+clean_best_folders()
 create_all_folder()
-clean_folders()
-
-get_best(
-    folder=                     "$all",
-    max_avg_color_deviation=    120,
-    max_contrast=               150
+treat_images(
+    folder= "animals",
+    size=   1000
 )
-create_img( 
-    main_image=     "cannon-h.jpg", 
-    images_size=     50, 
+get_best(
+    folder=                 "animals",
+    max_avg_color_deviation=120,
+    max_contrast=           150,
+    size=                   200
+)
+create_photomosaic( 
+    main_image=     "lion-h.jpg", 
+    images_size=    50,
     images_folder=  "$b_$all",
-    new_name=       "photomosaic.jpg",
+    new_name=       "photomosaic",
+    num_images=     False,
+    quality=        85,
+    save_fullres=   True,
+    save_lowres=    True,
+    save_gif=       True,
+    save_zooms=     False,
+    resize_main=    False
 )
 """

@@ -1,234 +1,215 @@
 # Photomosaic Creator
 
 ## Index
-- [Introduction](#introduction)
-- [Results](#results)
-- [Run the script](#run-the-script)
-- [How it works](#how-it-works)
-  - [Main function (create_img)](#main-function-create_img)
-    - [Arguments](#arguments-create_img)
-    - [Examples](#examples-create_img)
-  - [get_best()](#function-get_best)
-    - [Description](#description)
-    - [Arguments](#arguments-get_best)
-    - [Examples](#examples-get_best)
-  - [get_best_for_main()](#function-get_best_for_main)
-    - [Description](#description-get_best_for_main)
-    - [Arguments](#arguments-get_best_for_main)
-    - [Examples](#examples-get_best_for_main)
-  - [remove_duplicates()](#function-remove_duplicates)
-    - [Description](#description)
-    - [Arguments](#arguments-remove_duplicates)
-    - [Examples](#examples-remove_duplicates)
-  - [resize_images()](#function-resize_images)
-    - [Description](#description)
-    - [Arguments](#arguments-resize_images)
-    - [Examples](#examples-resize_images)
-- [Possible errors](#possible-errors)
+- [Introduction](#1-introduction)
+- [Results](#2-results)
+- [Run the script](#3-run-the-script)
+- [How it works](#h4-ow-it-works)
+  - [`create_photomosaic`](#create_photomosaic)
+  - [`get_best`](#get_best)
+  - [`treat_images`](#treat_images)
+  - [`create_all_folder`](#create_all_folder)
+  - [`clean_best_folders`](#clean_best_folders)
+- [Possible errors](#5-possible-errors)
 
-## Introduction
+
+## 1. Introduction
 This program allows you to create a photomosaic from a set of images.
-
-The image and the set of images can be any size you want, but the more size, the more time it will take and the larger the resulting image will be.
 
 You can use the preset sets/folders of images or you can upload your own folders to the `images` folder.
 
-The more images the set has, the better the result, but the more time it will take to create the photomosaic.
 
-## Results
-
-### 
+## 2. Results
 <img src="./Examples/lion.jpg" alt="lion" height="500">
-<img src="./Examples/lion.gif" alt="lion" height="500">
-<br>
 <img src="./Examples/elephant.jpg" alt="elephant" height="500">
-<img src="./Examples/elephant.gif" alt="elephant" height="500">
-<br>
 <img src="./Examples/tiger.jpg" alt="tiger" height="500">
+<br>
+<img src="./Examples/lion.gif" alt="lion" height="500">
+<img src="./Examples/elephant.gif" alt="elephant" height="500">
 <img src="./Examples/tiger.gif" alt="tiger" height="500">
 
-## Run the script
-
-Open the terminal, go to this folder and type:
+## 3. Run the script
+Open the terminal, go to this path and type:
 ```bash
-$ python3 main.py
+python3 main.py
 ```
 
-## How it works
 
+## 4. How it works
+
+### `create_photomosaic`
+
+Creates a photomosaic from a set of images
+
+#### Arguments
+| Argument | Description | Default | Example | Range |
+| -------- | ----------- | ------- | ------- | ----- |
+| main_image | Filename of the main image, save on the `main-images` folder | `lion-h` | `elephant-h.jpg` ||
+| images_size | Size of the images to be used in the photomosaic | `50` | `100` ||
+| images_folder | Folder inside the `images` folder to be used as a set of images | `$b_$all` | `animals` ||
+| new_name | Name of the new image and folder | `photomosaic` | `lion` ||
+| num_images | Number of images to be used to create the photomosaic | `False` | `255` | [3,255] |
+| quality | Quality of the new images | `85` | `75` | [0,100] |
+| save_fullres | Save the photomosaic in the full resolution | `True` | `False` ||
+| save_lowres | Save the photomosaic in the same resolution as the main image | `True` | `False` ||
+| save_gif |Ssave the photomosaic as a GIF, created by zooming into the photomosaic | `True` | `False` ||
+| save_zooms | Save zoomed images of the photomosaic | `False` | `True` ||
+| resize_main | Resize the main image (If you have an image too big to process) | `False` | `(720, 540)` | [1,...] |
+
+#### Explanation
 1. Creates the needed folders
-2. If `num_images` is specified, the function `get_best_for_main` will be called and the images obtained with it will be used to create the photomosaic.
-3. Obtains the average value of each primary color of each image in the selected folder by reducing the size of each image to 1 pixel
-4. Creates an array with all the numpy arrays of the images in the folder, resized to the desired size and converted from BGR to RGB
-5. Creates a numpy array from the selected main image in the `main-images` folder
-6. Creates the photomosaic by replacing each pixel of the main image with the images with the closest average color
-7. Saves the photomosaic in the `output` folder
+2. If `resize_main != False`, resizes the `main_image` to `resize_main`, a tuple with the width and the height.
+3. If `num_images != False`, it will obtain the best images to create the photomosaic, based on the palette of colors of the main image.
+4. Sorts the files in the `images_folder` folder
+5. Gets the average color of each image in the `images_folder` folder
+6. Creates a list with all the numpy arrays of the images in the `images_folder` folder, resized to `images_size`
+7. Creates an empty numpy array (`new_img_arr`) with the size of the main image multiplied by `images_size`
+8. For each pixel in the `main_image` array, it will add to the `new_img_arr` the image whose average color matches best with the pixel's color
+9. Creates a folder to store the created images, with the name `new_name`
+10. Saves the result in the `output` folder with quality `quality`:
+    - If `save_fullres == True`, it will save the photomosaic in the full resolution
+    - If `save_lowres == True`, it will save the photomosaic in the same resolution as the main image
+    - If `save_zooms == True`, it will save zoomed images of the photomosaic
+    - If `save_gif == True`, it will save the photomosaic as a GIF, created by zooming into the photomosaic
 
-### Main function (create_img())
-
-#### Arguments (create_img)
-| argument | description | example | default value | Range |
-| -------- | ----------- | ------- | ------------- | ----- |
-| 1 | Name of the main image | "img1.jpeg" | |
-| 2 | Size in px of the images that make up the main image | 100 | 50 | [1,...] |
-| images_folder | Folder where the set of images are | images_folder="animals" | "animals" | |
-| new_name | Name of the new image | new_name="my_photomosaic.jpg" | "photomosaic.jpg" | |
-| num_images | Number of images that will be used to create the image. If not specified, it will be create will all the iamges in the images_folder | 20 | 50 | [3,num_images] |
-
-#### Examples (create_img)
+#### Examples
 ```python
-# Suggested
-create_img( 
-  main_image=     "canon-h.jpeg", 
-  images_size=    50, 
-  images_folder=  "best_animals",
-  new_name=       "photomosaic.jpg",
-  num_images=     100
+# Default
+create_photomosaic( 
+    main_image=     "lion-h.jpg", 
+    images_size=    50,
+    images_folder=  "$b_$all",
+    new_name=       "photomosaic",
+    num_images=     False,
+    quality=        85,
+    save_fullres=   True,
+    save_lowres=    True,
+    save_gif=       True,
+    save_zooms=     False,
+    resize_main=    False
+)
+create_photomosaic( 
+    main_image=     "elephant-h.jpg", 
+    images_size=    50,
+    images_folder=  "$b_animals",
+    new_name=       "elephant",
+    num_images=     255,
+    save_zooms=     True,
+)
+create_photomosaic( 
+    main_image=     "tiger-m.jpg", 
+    images_size=    50,
+    new_name=       "tiger",
 )
 ```
 
 
-### Function: get_best()
+### `get_best`
 
-#### Description
+Gets the best images from the `folder` folder
 
-Function that picks the best images from the given set of images.
+#### Arguments
 
-#### Arguments (get_best)
+| Argument | Description | Default | Example | Range |
+| -------- | ----------- | ------- | ------- | ----- |
+| folder | Folder inside the `images` folder to be used | `$all` | `animals` || 
+| max_avg_color_deviation | Maximum average of the deviations from every pixel from the image's average color | `765` | `120` | [0,765] |
+| max_contrast | Maximum contrast between the image's top and bottom and left and right parts | `765` | `150` | [0,765] |
+| size | Size that the images of the new folder will have. The less size, the less it will take to create a photomosaic with these images | `1000` | `200` | [1,...] |
 
-| argument | description | example | default value | Range |
-| -------- | ----------- | ------- | ------------- | ----- |
-| folder | Folder of the set of images | "landscapes" | "animals" | |
-| max_color_deviation | The maximum average color deviation from the average color in the images. So that there are not many images with, for example, a green half and a black half | 150 | 765 | [0,765] |
-| max_contrast | The maximum contrast between the top-bottom or right-left that an image can have | 150 | 765 | [0,765] |
+#### Explanation
 
-#### Examples (get_best)
+1. Creates a new folder inside the `images` folder, with the name of the `folder` argument preceded by `$b_`
+2. Sorts the files in the `folder` folder
+3. Gets the average color of each image in the `folder` folder
+4. Checks each image in the `folder` folder. If it meets the requirements (`check_contrasts(...) == True` and `check_color_deviation(...) == True`), it will be added to the new folder: 
+
+#### Examples
+
 ```python
-# Suggested:
+# Default
 get_best(
-  folder=                     "$all",
-  max_avg_color_deviation=    120,
-  max_contrast=               150
+    folder=                 "$all",
+    max_avg_color_deviation=765,
+    max_contrast=           765,
+    size=                   1000
+)
+get_best(
+    folder=                 "animals",
+    max_avg_color_deviation=120,
+    max_contrast=           150,
+    size=                   200
 )
 ```
 
 
-### Function: get_best_for_main()
+### `treat_images`
 
-#### Description (get_best_for_main)
+#### Arguments
 
-Creates a new folder with the best images to be used as a palette for a main image
+| Argument | Description | Default | Example | Range |
+| -------- | ----------- | ------- | ------- | ----- |
+| folder | Folder inside the `images` folder to be treated | `animals` | `landscapes` ||
+| size | Size that the images of the new folder will have | `1000` | `500` | [1,...] |
 
-#### Arguments (get_best_for_main)
+#### Explanation
 
-| argument | description | example | default value | Range |
-| -------- | ----------- | ------- | ------------- | ----- |
-| main_image | Path of the main image from where the color palette will be created | img2_high-res.jpeg | | |
-| folder | Folder of the set of images | "landscapes" | "animals" | |
-| num_images | Number of images to pick | 10 | 20 | [3,num_images] |
+Resizes and eliminates suplicates from the selected folder
+
+#### Examples
+
+```python
+# Default
+treat_images(
+    folder= "animals",
+    size=   1000
+)
+treat_images(
+    folder= "landscapes",
+    size=   500
+)
+```
+
+
+### `create_all_folder`
+
+#### Arguments
+
+| Argument | Description | Default | Example | Range |
+| -------- | ----------- | ------- | ------- | ----- |
+| size | Size that the images of the new folder will have | `200` | `100` | [1,...] |
+
+#### Explanation
+
+Creates a new folder called `$all` inside the `images` folder, with all the images of the folders (not including the "best folders" (that start with `$b_`)) inside the `images` folder
+
+#### Examples
+
+```python
+# Default
+create_all_folder(
+    size=   200
+)
+create_all_folder(
+    size=   100
+)
+```
+
+
+### `clean_best_folders`
+
+#### Explanation
+
+Deletes the best folders (the ones that start with `$b_`)
 
 #### Examples
+
 ```python
-get_best_for_main(
-    main_image=  "img2_high-res.jpeg",
-    folder=      "animals",
-    num_images=  20
-)
+clean_best_folders()
 ```
 
 
-### Function: remove_duplicates()
-
-#### Description (remove_duplicates)
-
-Function that removes the duplicate images from the given folder.
-
-#### Arguments (remove_duplicates)
-
-| argument | description | example | default value |
-| -------- | ----------- | ------- | ------------- |
-| folder | Folder of the set of images | "landscapes" | "animals" |
-
-#### Examples (remove_duplicates)
-```python
-remove_duplicates("animals")
-remove_duplicates("landscapes")
-```
-
-
-### Function: resize_images()
-
-#### Description (resize_images)
-
-Function that resizes the images in the given folder to the given size.
-
-#### Arguments (resize_images)
-
-| argument | description | example | default value | Range |
-| -------- | ----------- | ------- | ------------- | ----- |
-| folder | Folder with the images to resize | "images/landscapes" | "images/animals" | |
-| size | Size of the images. It's ust a number, since the set of images has to be squared | 500 | 1000 | [1,...] |
-
-#### Examples (resize_images)
-```python
-resize_images(
-  folder= "images/animals",
-  size=   1000,
-)
-```
-
-## Possible errors
-
+## 5. Possible errors
 If you get the error: `zsh: killed python3 main.py`, it means that the program is taking too much memory.
 
-To solve it, you can try to reduce the size of the resized images or of the main image.
-
-
-### Function: treat_images()
-
-#### Description (treat_images)
-
-Resizes files from a folder and removes duplicates
-
-#### Arguments (treat_images)
-
-| argument | description | example | default value | Range |
-| -------- | ----------- | ------- | ------------- | ----- |
-| folder | Folder with the images | "images/landscapes" | "images/animals" | |
-| size | Size that the new images will have | 500 | 1000 | [1,...] |
-
-#### Examples (treat_images)
-```python
-treat_images(
-  folder=         "images/animals",
-  size=           1000,
-)
-treat_images()
-```
-
-### Function: create_main_folder()
-
-#### Description (create_main_folder)
-
-Creates a folder with all the other images from the other folders
-
-#### Arguments (create_main_folder)
-
-| argument | description | example | default value | Range |
-| -------- | ----------- | ------- | ------------- | ----- |
-| size | Size that the new images will have | 200 | 200 | [1,...] |
-
-#### Examples (create_main_folder)
-```python
-create_main_folder()
-create_main_folder(
-  size=500
-)
-```
-
-
-## Possible errors
-
-If you get the error: `zsh: killed python3 main.py`, it means that the program is taking too much memory.
-
-To solve it, you can try to reduce the size of the resized images or of the main image.
+To solve it, you can try to reduce the `images_size` in [`create_photomosaic`](#create_photomosaic) or the size of the `main_image`.
