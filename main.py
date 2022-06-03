@@ -4,6 +4,7 @@ import os
 import cv2
 import shutil
 import time
+import filecmp
 
 """
 Images taken from: 
@@ -34,6 +35,25 @@ class Ansi:
     RESET = '\u001b[0m'
 
 #------------------------------------------------------------------------------
+# Removes duplicate images from a folder
+
+def remove_duplicates(folder):
+    print(f"{Ansi.GREEN}Removing duplicates...{Ansi.RESET}")
+    dir = "images/" + folder
+    num_removed = 0
+    toRemove = []
+
+    for img1 in os.listdir(dir):
+        for img2 in os.listdir(dir):
+            if img1 != img2 and img2 not in toRemove and img1 not in toRemove and filecmp.cmp(dir + "/" + img1, dir + "/" + img2):
+                toRemove.append(img2)
+                num_removed += 1
+
+    for file in toRemove:
+        os.remove(dir + "/" + file)
+    print(f"{num_removed} duplicates removed")
+
+#------------------------------------------------------------------------------
 # Gets the average value of each primary color of each image in the resized images folder by reducing the size of each image to 1 pixel
 
 def get_colors(folder=RESIZED_FOLDER):
@@ -46,7 +66,7 @@ def get_colors(folder=RESIZED_FOLDER):
         resized_img = img.resize((1, 1))
         res.append(resized_img.getpixel((0,0)))
 
-    return res
+    return np.array(res)
 
 #------------------------------------------------------------------------------
 # Gets the index of the image with the most similar colors to the given pixel
@@ -64,14 +84,14 @@ def closest(arr, color):
 #------------------------------------------------------------------------------
 # Resizes each image from the given folder to the given size
 
-def resize_images(size, folder=IMAGES_FOLDER + "/animals", new_folder=RESIZED_FOLDER):
+def resize_images(size, folder, new_folder, same_name):
     i = 0
     for file in os.listdir(folder):
         if not file.startswith('.'):
             print(f"{i}. {Ansi.GREEN}Resizing{Ansi.RESET} {file}")
             img = Image.open(folder + "/" + file)
             resized_img = img.resize((size, size))
-            resized_img.save(new_folder + "/" + str(i) + ".jpg")
+            resized_img.save(f"{new_folder}/{file if same_name else f'{str(i)}.jpg'}")
             i += 1
 
 #------------------------------------------------------------------------------
@@ -93,7 +113,8 @@ def rename_images(folder, new_folder):
     i = 0
     for file in os.listdir(folder):
         if not file.startswith('.'):
-            img = Image.open(folder + "/" + file)
+            print(f"{i}. {Ansi.GREEN}Renaming{Ansi.RESET} {file}")
+            img = Image.open(folder + "/" + file).convert('RGB')
             img.save(new_folder + "/" + str(i) + ".jpg")
             i += 1
 
@@ -101,7 +122,7 @@ def rename_images(folder, new_folder):
 #------------------------------------------------------------------------------
 # Creates a new folder with the images from the given folder, removing the images with similar colors
 
-def get_best(folder="animals", color_diff=20):
+def get_best(folder, max_diff=20):
     path = "images/" + folder
     temp_path = "images/temp"
     new_path = "images/best_" + folder
@@ -119,15 +140,17 @@ def get_best(folder="animals", color_diff=20):
     best_images = []
     new_index = 0
     
+    print(f"{Ansi.MAGENTA}Obtaining the best images...{Ansi.RESET}")
     for i,rgb in enumerate(images_avg_color):
         invalid = False
         for color in best_images:
             diffs = [ abs(rgb[j] - color[j]) for j in range(3) ]
-            if sum(diffs) < color_diff:
+            if sum(diffs) <= max_diff:
                 invalid = True
                 break
         if not invalid:
             best_images.append(rgb)
+            print(f"{Ansi.YELLOW}Saved{Ansi.RESET} image {new_index}")
             img = Image.open(temp_path + "/" + str(i) + ".jpg")
             img.save(new_path + "/" + str(new_index) + ".jpg")
             new_index += 1
@@ -140,9 +163,9 @@ def get_best(folder="animals", color_diff=20):
 #------------------------------------------------------------------------------
 # This is executed when the script is run
 
-def create_img(main_image, images_size, **args): # resize=True, images_folder="animals"
-    resize = args.get("resize", False)
+def create_img(main_image, images_size=50, **args):
     images_folder = args.get("images_folder", "animals")
+    resize = args.get("resize", False)
     new_name = args.get('new_name', "photomosaic.jpg")
 
     create_folders()
@@ -150,28 +173,62 @@ def create_img(main_image, images_size, **args): # resize=True, images_folder="a
     if resize: 
         for f in os.listdir(RESIZED_FOLDER):
             os.remove(RESIZED_FOLDER + "/" + f)
-        resize_images(images_size, IMAGES_FOLDER + "/" + images_folder)
+
+    if resize or np.array(Image.open(f"{RESIZED_FOLDER}/0.jpg")).shape[0] != images_size:
+        resize_images(images_size, f"{IMAGES_FOLDER}/{images_folder}", RESIZED_FOLDER, False)
+
 
     images_avg_color = get_colors()
     images = [ np.array(Image.open(RESIZED_FOLDER + "/" + str(i) + ".jpg"))[:,:,::-1] for i in range(len(images_avg_color)) ] # [:,:,::-1] to convert from BGR to RGB
     main_img = np.array(Image.open(MAIN_IMAGES_FOLDER + "/" + main_image))
-    new_img = np.zeros((len(main_img)*images_size, len(main_img[0])*images_size, 3), dtype=np.uint8)
+    new_img_arr = np.zeros((len(main_img)*images_size, len(main_img[0])*images_size, 3), dtype=np.uint8)
 
     for i,line in enumerate(main_img):
         print(f"{Ansi.MAGENTA}Creating...{Ansi.RESET} {round(i/len(main_img)*100,2)}%")
         for j,pixel in enumerate(line):
             s = images_size
-            new_img[i*s : i*s+s , j*s : j*s+s] = images[closest(images_avg_color, pixel)]
+            new_img_arr[i*s : i*s+s , j*s : j*s+s] = images[closest(images_avg_color, pixel)]
 
     print(f"{Ansi.YELLOW}Saving...{Ansi.RESET}")
-    cv2.imwrite(OUTPUT_FOLDER + "/" + new_name, new_img)
+    cv2.imwrite(OUTPUT_FOLDER + "/" + new_name, new_img_arr)
 
-#------------------------------------------------------------------------------
+#########################################################################################
 # This is executed when the script is run
 
 startTime = time.time()
+#------------------------------------------------------------------------------
+"""
+remove_duplicates("animals")
 
-# get_best("animals", 20)
-create_img( "img1_high-res.jpeg" , 30 , resize=True , images_folder="best_animals" )
+get_best(
+    folder=         "animals",
+    max_diff=     20
+)
 
+resize_images(
+    size=           1000,
+    folder=         IMAGES_FOLDER + "/animals",
+    new_folder=     IMAGES_FOLDER + "/animals",
+    same_name=      True
+)
+
+create_img( 
+    main_image=     "img1.jpeg", 
+    images_size=    50, 
+    images_folder=  "animals",
+    resize=         False,
+    new_name=       "photomosaic.jpg"
+)
+"""
+#------------------------------------------------------------------------------
+
+create_img( 
+    main_image=     "img1.jpeg", 
+    images_size=    150, 
+    images_folder=  "animals",
+    new_name=       "photomosaic.jpg",
+    resize=         False,
+)
+
+#------------------------------------------------------------------------------
 print(f'{Ansi.CYAN}Done in: {round(time.time() - startTime,4)}s{Ansi.RESET}')

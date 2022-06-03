@@ -1,15 +1,25 @@
 # Photomosaic Creator
 
 ## Index
-- [Index](#index)
 - [Introduction](#introduction)
+- [Results](#results)
+- [Run the script](#run-the-script)
+- [How it works](#how-it-works)
   - [Main function (create_img)](#main-function-create_img)
     - [Arguments](#arguments-create_img)
     - [Examples](#examples-create_img)
-  - [get_best()](#get_best)
+  - [get_best()](#function-get_best)
     - [Description](#description)
     - [Arguments](#arguments-get_best)
     - [Examples](#examples-get_best)
+  - [remove_duplicates()](#function-remove_duplicates)
+    - [Description](#description)
+    - [Arguments](#arguments-remove_duplicates)
+    - [Examples](#examples-remove_duplicates)
+  - [resize_images()](#function-resize_images)
+    - [Description](#description)
+    - [Arguments](#arguments-resize_images)
+    - [Examples](#examples-resize_images)
 - [Possible errors](#possible-errors)
 
 ## Introduction
@@ -30,13 +40,14 @@ The more images the set has, the better the result, but the more time it will ta
 
 ## Run the script
 
+Open the terminal, go to this folder and type:
 ```bash
 $ python3 main.py
 ```
 
 ## How it works
 
-1. Creates the needed folders
+1. Creates the needed folders and removes all the duplicates from the given folder
 2. If `resize=True`, the `resized` folder will be replaced with the new resized images from the given set of images
 3. Obtains the average value of each primary color of each image in the `resized` folder by reducing the size of each image to 1 pixel
 4. Creates an array with all the numpy arrays of the images in the `resized` folder, converted from BGR to RGB
@@ -46,64 +57,98 @@ $ python3 main.py
 
 ### Main function (create_img())
 
-#### Arguments (create_img())
+#### Arguments (create_img)
 | argument | description | example | default value | Required |
 | -------- | ----------- | ------- | ------------- | -------- |
 | 1 | Name of the main image | "my_img.jpeg" | | Yes |
-| 2 | Size in px of the images that make up the main image | 50 | | Yes |
-| resize | Whether or not you want to resize the images | resize=True | False | No |
+| 2 | Size in px of the images that make up the main image | 100 | 50 | Yes |
+| resize | Whether or not you want to resize the images. It should always be set to false. Only give it the value `True` if you have stopped the script in the middle of the resizing or if there's been an error related to it | resize=False | False | No |
 | images_folder | Folder where the images are | images_folder="animals" | "animals" | No |
 | new_name | Name of the new image | new_name="photomosaic.jpg" | "photomosaic.jpg" | No |
+| rem_duplicates | Whether or not you want to remove the duplicate images from the folder | rem_duplicates=True | False | No |
 
-#### Examples (create_img())
+#### Examples (create_img)
 ```python
 create_img( 
-  "img1.jpeg", 
-  100
+    main_image=     "img1.jpeg", 
+    images_size=    50, 
+    images_folder=  "landscapes",
+    new_name=       "photomosaic.jpg"
+    resize=         False,
 )
 create_img( 
-  "img1_high-res.jpeg",
-  50
-)
-create_img( 
-  "other_image.png", 
-  75, 
-  images_folder="landscapes"
-)
-create_img( 
-    "other_image.jpg", 
-    50, 
-    resize=True, 
-    images_folder="other_folder", 
-    new_name="my_new_photomosaic.png"
-)
-create_img( 
-    "other_image.jpeg", 
-    50, 
-    new_name="my_new_photomosaic.jpeg", 
-    resize=True
+    main_image=     "img2_high-res.jpeg", 
+    images_size=    50, 
+    images_folder=  "animals",
+    new_name=       "my_photomosaic.jpg"
+    resize=         False,
 )
 ```
 
 
-### get_best()
+### Function: get_best()
 
 #### Description
 
 Function that picks the best images from the given set of images.
 
-#### Arguments (get_best())
+#### Arguments (get_best)
 
 | argument | description | example | default value | Required |
 | -------- | ----------- | ------- | ------------- | -------- |
-| folder | Folder of the set of images | "landscapes" | "animals" | No |
-| color_diff | The maximum color difference between the images | 10 | 20 | No |
+| folder | Folder of the set of images | "landscapes" | | Yes |
+| max_diff | The maximum color difference between the images (the more difference, the less images) | 10 | 20 | No |
 
-#### Examples (get_best())
+#### Examples (get_best)
 ```python
-get_best()
-get_best("animals", 10)
-get_best("landscapes", 20)
+get_best(
+    folder=     "animals",
+    max_diff= 20
+)
+get_best(
+    folder=     "landscapes",
+    max_diff= 10
+)
+```
+
+
+### Function: remove_duplicates()
+
+#### Description (remove_duplicates)
+
+Function that removes the duplicate images from the given folder.
+
+#### Arguments (remove_duplicates)
+
+| argument | description | example | default value | Required |
+| -------- | ----------- | ------- | ------------- | -------- |
+| folder | Folder of the set of images | "landscapes" | | Yes |
+
+#### Examples (remove_duplicates)
+```python
+remove_duplicates("animals")
+remove_duplicates("landscapes")
+```
+
+
+### Function: resize_images()
+
+#### Description (resize_images)
+
+Function that resizes the images in the given folder to the given size.
+
+#### Arguments (resize_images)
+
+| argument | description | example | default value | Required |
+| -------- | ----------- | ------- | ------------- | -------- |
+| size | Size of the images (just a number, since the set of images have to be squared) | 1000 | | Yes |
+| folder | Folder with the images to resize | "images/animals" | | Yes |
+| new_folder | Folder where the resized images will be saved | "images/animals" | | Yes |
+| same_name | Whether or not the images will have the same name (and be overwritten if the `new_folder` is the same as the `folder`) or if they will have a numerical name (0 to ...) | True | | Yes |
+
+#### Examples (resize_images)
+```python
+resize_images(1000, IMAGES_FOLDER + "/animals", IMAGES_FOLDER + "/animals", True)
 ```
 
 ## Possible errors
