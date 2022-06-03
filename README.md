@@ -47,8 +47,8 @@ $ python3 main.py
 
 ## How it works
 
-1. Creates the needed folders and removes all the duplicates from the given folder
-2. If `resize=True`, the `resized` folder will be replaced with the new resized images from the given set of images
+1. Creates the needed folders
+2. If `resize=True` or if `the number of images in the folder is different than the number of images in the resized folder`or if `the size of the first image in the resized folder is different than the desired image size`: The `resized` folder will be replaced with the new resized images from the given set of images
 3. Obtains the average value of each primary color of each image in the `resized` folder by reducing the size of each image to 1 pixel
 4. Creates an array with all the numpy arrays of the images in the `resized` folder, converted from BGR to RGB
 5. Creates a numpy array from the selected main image in the `main-images` folder
@@ -97,17 +97,17 @@ Function that picks the best images from the given set of images.
 | argument | description | example | default value | Required |
 | -------- | ----------- | ------- | ------------- | -------- |
 | folder | Folder of the set of images | "landscapes" | | Yes |
-| max_diff | The maximum color difference between the images (the more difference, the less images) | 10 | 20 | No |
+| min_color_diff | The minumum color difference between the images (the more difference, the less images) | 10 | 20 | No |
 
 #### Examples (get_best)
 ```python
 get_best(
-    folder=     "animals",
-    max_diff= 20
+    folder=             "animals",
+    min_color_diff=     20,
 )
 get_best(
     folder=     "landscapes",
-    max_diff= 10
+    min_color_diff= 10
 )
 ```
 

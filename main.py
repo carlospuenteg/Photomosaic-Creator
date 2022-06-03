@@ -8,7 +8,7 @@ import filecmp
 
 """
 Images taken from: 
-- Animals: https://unsplash.com/es/s/fotos/animals?orientation=squarish
+- Animals: https://unsplash.com/es/s/fotos/animals?order_by=latest&orientation=squarish
 - Landscapes: https://unsplash.com/es/s/fotos/landscapes?orientation=squarish
 """
 
@@ -81,6 +81,19 @@ def closest(arr, color):
             index = i
     return index
 
+def closest2(arr, color):
+    index = 0
+    min_diff = 765
+    for i,rgb in enumerate(arr):
+        diffs = [ abs(rgb[j] - color[j]) for j in range(3) ]
+        if (sum(diffs) < min_diff):
+            min_diff = sum(diffs)
+            index = i
+    return [
+        index,
+        diffs
+    ]
+
 #------------------------------------------------------------------------------
 # Resizes each image from the given folder to the given size
 
@@ -91,7 +104,14 @@ def resize_images(size, folder, new_folder, same_name):
             print(f"{i}. {Ansi.GREEN}Resizing{Ansi.RESET} {file}")
             img = Image.open(folder + "/" + file)
             resized_img = img.resize((size, size))
-            resized_img.save(f"{new_folder}/{file if same_name else f'{str(i)}.jpg'}")
+            if same_name:
+                if file[:2] != "r_": 
+                    fileName = f"r_{file}"
+                    os.remove(f"{folder}/{file}")
+                else: fileName = file
+            else:
+                fileName = f'{str(i)}.jpg'
+            resized_img.save(f"{new_folder}/{fileName}")
             i += 1
 
 #------------------------------------------------------------------------------
@@ -118,11 +138,10 @@ def rename_images(folder, new_folder):
             img.save(new_folder + "/" + str(i) + ".jpg")
             i += 1
 
-
 #------------------------------------------------------------------------------
 # Creates a new folder with the images from the given folder, removing the images with similar colors
 
-def get_best(folder, max_diff=20):
+def get_best(folder, min_color_diff=20):
     path = "images/" + folder
     temp_path = "images/temp"
     new_path = "images/best_" + folder
@@ -142,13 +161,13 @@ def get_best(folder, max_diff=20):
     
     print(f"{Ansi.MAGENTA}Obtaining the best images...{Ansi.RESET}")
     for i,rgb in enumerate(images_avg_color):
-        invalid = False
+        valid = True
         for color in best_images:
             diffs = [ abs(rgb[j] - color[j]) for j in range(3) ]
-            if sum(diffs) <= max_diff:
-                invalid = True
+            if sum(diffs) <= min_color_diff:
+                valid = False
                 break
-        if not invalid:
+        if valid:
             best_images.append(rgb)
             print(f"{Ansi.YELLOW}Saved{Ansi.RESET} image {new_index}")
             img = Image.open(temp_path + "/" + str(i) + ".jpg")
@@ -170,11 +189,11 @@ def create_img(main_image, images_size=50, **args):
 
     create_folders()
 
-    if resize: 
-        for f in os.listdir(RESIZED_FOLDER):
-            os.remove(RESIZED_FOLDER + "/" + f)
-
-    if resize or np.array(Image.open(f"{RESIZED_FOLDER}/0.jpg")).shape[0] != images_size:
+    num_images = len(os.listdir(IMAGES_FOLDER + "/" + images_folder))
+    num_resized = len(os.listdir(RESIZED_FOLDER))
+    if resize or num_images != num_resized or np.array(Image.open(f"{RESIZED_FOLDER}/0.jpg")).shape[0] != images_size:
+        shutil.rmtree(RESIZED_FOLDER)
+        os.makedirs(RESIZED_FOLDER)
         resize_images(images_size, f"{IMAGES_FOLDER}/{images_folder}", RESIZED_FOLDER, False)
 
 
@@ -187,7 +206,8 @@ def create_img(main_image, images_size=50, **args):
         print(f"{Ansi.MAGENTA}Creating...{Ansi.RESET} {round(i/len(main_img)*100,2)}%")
         for j,pixel in enumerate(line):
             s = images_size
-            new_img_arr[i*s : i*s+s , j*s : j*s+s] = images[closest(images_avg_color, pixel)]
+            index = closest(images_avg_color, pixel)
+            new_img_arr[i*s : i*s+s , j*s : j*s+s] = images[index]
 
     print(f"{Ansi.YELLOW}Saving...{Ansi.RESET}")
     cv2.imwrite(OUTPUT_FOLDER + "/" + new_name, new_img_arr)
@@ -201,8 +221,8 @@ startTime = time.time()
 remove_duplicates("animals")
 
 get_best(
-    folder=         "animals",
-    max_diff=     20
+    folder=             "animals",
+    min_color_diff=     20,
 )
 
 resize_images(
@@ -216,18 +236,18 @@ create_img(
     main_image=     "img1.jpeg", 
     images_size=    50, 
     images_folder=  "animals",
-    resize=         False,
-    new_name=       "photomosaic.jpg"
+    new_name=       "photomosaic.jpg",
+    resize=         False
 )
 """
 #------------------------------------------------------------------------------
 
 create_img( 
     main_image=     "img1.jpeg", 
-    images_size=    150, 
+    images_size=    50, 
     images_folder=  "animals",
     new_name=       "photomosaic.jpg",
-    resize=         False,
+    resize=         False
 )
 
 #------------------------------------------------------------------------------
