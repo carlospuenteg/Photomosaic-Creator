@@ -27,6 +27,7 @@ def resize(file, size, new_file="res_image.png", folder="images/animals"):
 def resize_all(size, folder="images/animals"):
     i = 0
     for file in os.listdir(folder):
+        print("Resizing " + file)
         if not file.startswith('.'):
             resize(file, size, str(i) + ".jpg", folder)
             i += 1

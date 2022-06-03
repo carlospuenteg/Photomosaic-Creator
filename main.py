@@ -15,7 +15,7 @@ def get_colors(folder="resized"):
     res = []
     folders = [str(i) + ".jpg" for i in range(len(os.listdir(folder)))]
     for file in folders:
-        print(file)
+        print("Analyzing " + file)
         if not file.startswith('.'):
             avg = [0,0,0]
             img = np.array(Image.open(folder + "/" + file))
@@ -55,8 +55,8 @@ def main(file="img_test.jpeg", size=10, format=True, folder="animals"):
     new_img = np.zeros((len(main_img)*size, len(main_img[0])*size, 3), dtype=np.uint8)
 
     for i,line in enumerate(main_img):
+        print("Creating... " + str(round(i/len(main_img)*100,2)) + "%")
         for j,pixel in enumerate(line):
-            # print(main_img[i,j], images_avg[closest(images_avg, main_img[i,j])], closest(images_avg, main_img[i,j]))
             new_img[i*size:i*size+size,j*size:j*size+size] = images[closest(images_avg, pixel)]
 
     cv2.imwrite("result/" + file, new_img)
