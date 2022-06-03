@@ -204,6 +204,26 @@ treat_images(
 treat_images()
 ```
 
+### Function: create_main_folder()
+
+#### Description (create_main_folder)
+
+Creates a folder with all the other images from the other folders
+
+#### Arguments (create_main_folder)
+
+| argument | description | example | default value | Range |
+| -------- | ----------- | ------- | ------------- | ----- |
+| size | Size that the new images will have | 200 | 200 | [1,...] |
+
+#### Examples (create_main_folder)
+```python
+create_main_folder()
+create_main_folder(
+  size=500
+)
+```
+
 
 ## Possible errors
 

@@ -157,8 +157,7 @@ def get_best_colors_main(main_image, folder="animals", num_images=20):
     for rgb in get_best_colors(main_image_path, num_images):
         closest_index = closest(images_avg_color, rgb)
         images_avg_color[closest_index] = [-255,-255,-255]
-        img = Image.open(f"{path}/{files[closest_index]}")
-        img.save(f"{new_path}/{files[closest_index]}")
+        shutil.copy(f"{path}/{files[closest_index]}", f"{new_path}/{files[closest_index]}")
 
 #------------------------------------------------------------------------------
 # Checks if the average deviation from the average color of an image is less than the given threshold
@@ -180,16 +179,15 @@ def check_color_deviation(image_path, avg_color, max, size_to_test=10):
 def check_contrasts(image_path, max):
     if max >= 765: return True
     img = Image.open(image_path)
-    img_4x4 = np.array(img.resize((4, 4)))
-    img_3x3 = np.array(img.resize((3, 3)).getdata())
+    img = np.array(img.resize((4, 4)))
 
-    color_left = np.average(img_4x4[:2,:].reshape(8,3), axis=0)
-    color_right = np.average(img_4x4[2:,:].reshape(8,3), axis=0)
+    color_left = np.average(img[:2,:].reshape(8,3), axis=0)
+    color_right = np.average(img[2:,:].reshape(8,3), axis=0)
     if sum(np.absolute(np.subtract(color_right,color_left))) > max:
         return False
 
-    color_top = np.average(img_4x4[:,:2].reshape(8,3), axis=0)
-    color_bottom = np.average(img_4x4[:,2:].reshape(8,3), axis=0)
+    color_top = np.average(img[:,:2].reshape(8,3), axis=0)
+    color_bottom = np.average(img[:,2:].reshape(8,3), axis=0)
     if sum(np.absolute(np.subtract(color_bottom,color_top))) > max:
         return False
 
@@ -211,8 +209,7 @@ def get_best(folder="animals", max_avg_color_deviation=765, max_contrast=765):
     print(f"{Ansi.MAGENTA}Obtaining the best images...{Ansi.RESET}")
     for i,file in enumerate(files):
         if check_contrasts(f"{path}/{file}", max_contrast) and check_color_deviation(f"{path}/{file}", avg_colors[i], max_avg_color_deviation):
-            img = Image.open(f"{path}/{file}")
-            img.save(f"{new_path}/{file}")
+            shutil.copy(f"{path}/{file}", f"{new_path}/{file}")
             print(f"{Ansi.YELLOW}Saved{Ansi.RESET} image {file}")
     
     print(f"Previous images: {len(files)}")
@@ -260,7 +257,13 @@ def create_img(main_image, images_size=50, images_folder="animals", new_name="ph
 #------------------------------------------------------------------------------
 startTime = time.time()
 #------------------------------------------------------------------------------
-create_main_folder()
+create_img( 
+    main_image=     "lion-l.jpeg", 
+    images_size=     50, 
+    images_folder=  "animals",
+    new_name=       "photomosaic.jpg",
+    num_images=     255
+)
 #------------------------------------------------------------------------------
 print(f'{Ansi.CYAN}Done in: {round(time.time() - startTime,4)}s{Ansi.RESET}')
 #------------------------------------------------------------------------------
@@ -272,6 +275,7 @@ resize_images(
     size=           1000,
 )
 treat_images()
+create_main_folder()
 
 get_best(
     folder=                     "animals",
