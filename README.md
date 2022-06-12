@@ -1,39 +1,35 @@
-# Photomosaic Creator
+# Photomosaic Creator
 
 ## Index
 - [Introduction](#1-introduction)
 - [Results](#2-results)
 - [Run the script](#3-run-the-script)
-- [How it works](#4-how-it-works)
+- [How it works](#h4-ow-it-works)
   - [`create_photomosaic`](#create_photomosaic)
   - [`get_best`](#get_best)
   - [`treat_images`](#treat_images)
+  - [`treat_all_images](#treat_all_images)
   - [`create_all_folder`](#create_all_folder)
   - [`clean_best_folders`](#clean_best_folders)
 - [Possible errors](#5-possible-errors)
 
 
 ## 1. Introduction
-
-This script allows you to create a photomosaic from a set of images.
+This program allows you to create a photomosaic from a set of images.
 
 You can use the preset sets/folders of images or you can upload your own folders to the `images` folder.
 
 
-## 2. Results
-<div float="left" align="center">
-  <img src="./assets/lion.jpg" alt="lion" height="400">
-  <img src="./assets/elephant.jpg" alt="elephant" height="400">
-  <img src="./assets/tiger.jpg" alt="tiger" height="400">
-</div>
-<div float="left" align="center">
-  <img src="./assets/lion.gif" alt="lion" height="400">
-  <img src="./assets/elephant.gif" alt="elephant" height="400">
-  <img src="./assets/tiger.gif" alt="tiger" height="400">
-</div>
+## 2. Results
+<img src="./assets/lion.jpg" alt="lion" height="500">
+<img src="./assets/elephant.jpg" alt="elephant" height="500">
+<img src="./assets/tiger.jpg" alt="tiger" height="500">
+<br>
+<img src="./assets/lion.gif" alt="lion" height="500">
+<img src="./assets/elephant.gif" alt="elephant" height="500">
+<img src="./assets/tiger.gif" alt="tiger" height="500">
 
-## 3. Run the script
-
+## 3. Run the script
 Call the desired functions in this part of the `main.py` file:
 ```python
 #########################################################################################
@@ -67,7 +63,7 @@ python3 main.py
 Then, after the script runs, the result should appear in the `output` folder.
 
 
-## 4. How it works
+## 4. How it works
 
 ### `create_photomosaic`
 
@@ -82,13 +78,14 @@ Creates a photomosaic from a set of images
 | new_name | Name of the new image and folder | `photomosaic` | `lion` ||
 | num_images | Number of images to be used to create the photomosaic | `False` | `255` | [3,255] |
 | quality | Quality of the new images | `85` | `75` | [0,100] |
-| save_fullres | Save the photomosaic in the full resolution | `True` | `False` ||
+| save_fullres | Save the photomosaic in the full resolution | `False` | `True` ||
 | save_lowres | Save the photomosaic in the same resolution as the main image | `True` | `False` ||
 | save_gif |Ssave the photomosaic as a GIF, created by zooming into the photomosaic | `True` | `False` ||
+| save_vid | Save the photomosaic as a vid, created by zooming into the photomosaic | `True` | `False` ||
 | save_zooms | Save zoomed images of the photomosaic | `False` | `True` ||
 | resize_main | Resize the main image (If you have an image too big to process) | `False` | `(720, 540)` | [1,...] |
 
-#### Explanation
+#### Explanation
 1. Creates the needed folders
 2. If `resize_main != False`, resizes the `main_image` to `resize_main`, a tuple with the width and the height.
 3. If `num_images != False`, it will obtain the best images to create the photomosaic, based on the palette of colors of the main image.
@@ -103,6 +100,7 @@ Creates a photomosaic from a set of images
     - If `save_lowres == True`, it will save the photomosaic in the same resolution as the main image
     - If `save_zooms == True`, it will save zoomed images of the photomosaic
     - If `save_gif == True`, it will save the photomosaic as a GIF, created by zooming into the photomosaic
+    - If `save_vid == True`, it will save the photomosaic as a video, created by zooming into the photomosaic
 
 #### Examples
 ```python
@@ -114,9 +112,10 @@ create_photomosaic(
     new_name=       "photomosaic",
     num_images=     False,
     quality=        85,
-    save_fullres=   True,
+    save_fullres=   False,
     save_lowres=    True,
     save_gif=       True,
+    save_vid=       True,
     save_zooms=     False,
     resize_main=    False
 )
@@ -151,7 +150,7 @@ Gets the best images from the `folder` folder
 | max_contrast | Maximum contrast between the image's top and bottom and left and right parts | `765` | `150` | [0,765] |
 | size | Size that the images of the new folder will have. The less size, the less it will take to create a photomosaic with these images | `1000` | `200` | [1,...] |
 
-#### Explanation
+#### Explanation
 
 1. Creates a new folder inside the `images` folder, with the name of the `folder` argument preceded by `$b_`
 2. Sorts the files in the `folder` folder
@@ -178,31 +177,24 @@ get_best(
 ```
 
 
-### `treat_images`
+### `treat_all_images`
 
 #### Arguments
 
 | Argument | Description | Default | Example | Range |
 | -------- | ----------- | ------- | ------- | ----- |
-| folder | Folder inside the `images` folder to be treated | `animals` | `landscapes` ||
-| size | Size that the images of the new folder will have | `1000` | `500` | [1,...] |
+| size | Size that the treated images of all the folders will have | `1000` | `500` | [1,...] |
 
 #### Explanation
 
-Resizes and eliminates suplicates from the selected folder
+Resizes and eliminates duplicates from every folder
 
 #### Examples
 
 ```python
 # Default
-treat_images(
-    folder= "animals",
+treat_all_images(
     size=   1000
-)
-
-treat_images(
-    folder= "landscapes",
-    size=   500
 )
 ```
 
@@ -235,11 +227,11 @@ create_all_folder(
 
 ### `clean_best_folders`
 
-#### Explanation
+#### Explanation
 
 Deletes the best folders (the ones that start with `$b_`)
 
-#### Examples
+#### Examples
 
 ```python
 clean_best_folders()
