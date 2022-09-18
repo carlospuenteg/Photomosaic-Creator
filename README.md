@@ -22,15 +22,15 @@ You can use the preset sets/folders of images or you can upload your own folders
 
 ## 2. Results
 <p float=left>
-  <img src="./assets/lion.jpg" alt="lion" height="500">
-  <img src="./assets/elephant.jpg" alt="elephant" height="500">
-  <img src="./assets/tiger.jpg" alt="tiger" height="500">
+  <img src="./assets/lion.jpg" alt="lion" height="400">
+  <img src="./assets/elephant.jpg" alt="elephant" height="400">
+  <img src="./assets/tiger.jpg" alt="tiger" height="400">
 </p>
 <br>
 <p float=left>
-  <img src="./assets/lion.gif" alt="lion" height="500">
-  <img src="./assets/elephant.gif" alt="elephant" height="500">
-  <img src="./assets/tiger.gif" alt="tiger" height="500">
+  <img src="./assets/lion.gif" alt="lion" height="400">
+  <img src="./assets/elephant.gif" alt="elephant" height="400">
+  <img src="./assets/tiger.gif" alt="tiger" height="400">
 </p>
 
 ## 3. Run the script
