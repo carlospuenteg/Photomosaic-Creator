@@ -27,7 +27,7 @@ This program allows you to create a photomosaic from a set of images.
 You can use the preset sets/folders of images or you can upload your own folders to the `images` folder.
 
 
-## 2. Results
+## 2. Results
 
 <div float="left">
     <img src="./assets/lion.jpg" alt="lion" height="400">
@@ -43,7 +43,7 @@ https://user-images.githubusercontent.com/65092569/192170360-5c9a6985-58ad-49c1-
 https://user-images.githubusercontent.com/65092569/192170517-4b6492ba-2d95-46fa-a4da-5bc9dc64b833.mp4
 
 
-## 3. Run the script
+## 3. Run the script
 Call the desired functions in this part of the `main.py` file:
 ```python
 #########################################################################################
@@ -77,7 +77,7 @@ python3 main.py
 Then, after the script runs, the result should appear in the `output` folder.
 
 
-## 4. How it works
+## 4. How it works
 
 ### `create_photomosaic`
 
@@ -99,7 +99,7 @@ Creates a photomosaic from a set of images
 | save_zooms | Save zoomed images of the photomosaic | `False` | `True` ||
 | resize_main | Resize the main image (If you have an image too big to process) | `False` | `(720, 540)` | [1,...] |
 
-#### Explanation
+#### Explanation
 1. Creates the needed folders
 2. If `resize_main != False`, resizes the `main_image` to `resize_main`, a tuple with the width and the height.
 3. If `num_images != False`, it will obtain the best images to create the photomosaic, based on the palette of colors of the main image.
@@ -164,7 +164,7 @@ Gets the best images from the `folder` folder
 | max_contrast | Maximum contrast between the image's top and bottom and left and right parts | `765` | `150` | [0,765] |
 | size | Size that the images of the new folder will have. The less size, the less it will take to create a photomosaic with these images | `1000` | `200` | [1,...] |
 
-#### Explanation
+#### Explanation
 
 1. Creates a new folder inside the `images` folder, with the name of the `folder` argument preceded by `$b_`
 2. Sorts the files in the `folder` folder
@@ -241,11 +241,11 @@ create_all_folder(
 
 ### `clean_best_folders`
 
-#### Explanation
+#### Explanation
 
 Deletes the best folders (the ones that start with `$b_`)
 
-#### Examples
+#### Examples
 
 ```python
 clean_best_folders()
