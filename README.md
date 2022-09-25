@@ -15,7 +15,7 @@
 - [Possible errors](#5-possible-errors)
 
 
-##01. Install needed packages
+## 0. Install needed packages
 ```bash
 pip3 install -r requirements.txt
 ```
@@ -27,7 +27,7 @@ This program allows you to create a photomosaic from a set of images.
 You can use the preset sets/folders of images or you can upload your own folders to the `images` folder.
 
 
-## 2. Results
+## 2. Results
 <img src="./assets/lion.jpg" alt="lion" height="500">
 <img src="./assets/elephant.jpg" alt="elephant" height="500">
 <img src="./assets/tiger.jpg" alt="tiger" height="500">
