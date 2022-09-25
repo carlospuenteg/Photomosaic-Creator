@@ -15,7 +15,7 @@
 - [Possible errors](#5-possible-errors)
 
 
-##01. Install needed packages
+## 0. Install needed packages
 ```bash
 pip3 install -r requirements.txt
 ```
