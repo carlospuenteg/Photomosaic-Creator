@@ -15,7 +15,7 @@
 - [Possible errors](#5-possible-errors)
 
 
-## 0. Install needed packages
+##01. Install needed packages
 ```bash
 pip3 install -r requirements.txt
 ```
@@ -27,14 +27,26 @@ This program allows you to create a photomosaic from a set of images.
 You can use the preset sets/folders of images or you can upload your own folders to the `images` folder.
 
 
-## 2. Results
-<img src="./assets/lion.jpg" alt="lion" height="500">
-<img src="./assets/elephant.jpg" alt="elephant" height="500">
-<img src="./assets/tiger.jpg" alt="tiger" height="500">
+## 2. Results
+
+<div float="left">
+    <img src="./assets/lion.jpg" alt="lion" height="500">
+    <img src="./assets/elephant.jpg" alt="elephant" height="500">
+    <img src="./assets/tiger.jpg" alt="tiger" height="500">
+</div>
 <br>
-<img src="./assets/lion.gif" alt="lion" height="500">
-<img src="./assets/elephant.gif" alt="elephant" height="500">
-<img src="./assets/tiger.gif" alt="tiger" height="500">
+<div float="left">
+    <img src="./assets/lion.gif" alt="lion" height="500">
+    <img src="./assets/elephant.gif" alt="elephant" height="500">
+    <img src="./assets/tiger.gif" alt="tiger" height="500">
+</div>
+
+https://user-images.githubusercontent.com/65092569/192170360-5c9a6985-58ad-49c1-874d-ea90fc1c0b42.mp4
+
+https://user-images.githubusercontent.com/65092569/192170512-0378d30a-4094-4029-a875-1a368e5f948f.mp4
+
+https://user-images.githubusercontent.com/65092569/192170517-4b6492ba-2d95-46fa-a4da-5bc9dc64b833.mp4
+
 
 ## 3. Run the script
 Call the desired functions in this part of the `main.py` file:

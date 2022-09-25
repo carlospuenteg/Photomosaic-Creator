@@ -20,6 +20,16 @@ Images taken from:
 BEST_FOLDER = "$b_"
 ALL_FOLDER = "$all"
 
+DEFAULT_FRAME_DURATION = 30
+DEFAULT_ZOOM_INCR = 1.015
+DEFAULT_QUALITY = 85
+DEFAULT_MIN_IMAGES_ZOOM = 10
+
+# Settings for high quality video:
+# - DEFAULT_FRAME_DURATION: 30
+# - DEFAULT_ZOOM_INCR: 1.015 (more than that if your computer is having troubles. This just increases the zoom speed)
+# - DEFAULT_QUALITY: 85
+
 #------------------------------------------------------------------------------
 # ANSI color codes for the terminal
 
@@ -305,7 +315,7 @@ def save_img(img, path, quality=95):
 #------------------------------------------------------------------------------
 # Save a GIF
 
-def save_gif_func(images, path, quality=95, frame_duration=250):
+def save_gif_func(images, path, quality=95, frame_duration=DEFAULT_FRAME_DURATION):
     images[0].save(path, format="GIF", append_images=images, save_all=True, duration=frame_duration, loop=0, quality=quality)
     print(f"{Ansi.GREEN}GIF saved{Ansi.RESET} ({get_file_size(path):.2f} MB)")
 
@@ -353,7 +363,7 @@ def create_zoom_img(img_arr, full_shape, main_img_shape, zoom, max_res):
 #------------------------------------------------------------------------------
 # Saved zoom images of the photomosaic
 
-def save_zoom_images(img_arr, new_folder, new_name, main_img_shape, images_size, quality=95, max_res=1080, min_images=3, zoom_incr=2):
+def save_zoom_images(img_arr, new_folder, new_name, main_img_shape, images_size, quality=95, max_res=1080, min_images=DEFAULT_MIN_IMAGES_ZOOM, zoom_incr=DEFAULT_ZOOM_INCR):
     full_shape = img_arr.shape
     zoom_path = f"{new_folder}/zoom"
     
@@ -369,7 +379,7 @@ def save_zoom_images(img_arr, new_folder, new_name, main_img_shape, images_size,
 #------------------------------------------------------------------------------
 # Save a GIF of the zoomed images of the photomosaic
 
-def save_zooms_gif(img_arr, new_folder, new_name, main_img_shape, images_size, save_gif, save_vid, quality=95, max_res=1080, min_images=3, zoom_incr=1.3):
+def save_zooms_gif(img_arr, new_folder, new_name, main_img_shape, images_size, save_gif, save_vid, quality=95, max_res=1080, min_images=DEFAULT_MIN_IMAGES_ZOOM, zoom_incr=DEFAULT_ZOOM_INCR):
     full_shape = img_arr.shape
     gif_images = []
     zoom = 1
@@ -405,7 +415,7 @@ def create_photomosaic(main_image="lion-h", images_size=50, images_folder="$b_$a
     # 3
     if num_images:
         max_images = min(255, len(os.listdir(images_folder)))
-        min_images = 3
+        min_images = DEFAULT_MIN_IMAGES_ZOOM
         num_images = min_images if num_images < min_images else max_images if num_images > max_images else num_images
         get_best_colors_main(main_image, images_folder_name, num_images)
         images_folder = f"images/{images_folder_name}_{main_image.split('.')[0]}"
@@ -451,15 +461,15 @@ startTime = time.time()
 #########################################################################################
 # Your calls go here
 create_photomosaic( 
-    main_image=     "lion-m.jpg", 
+    main_image=     "lion-l.jpg", 
     images_size=    50,
     images_folder=  "$b_$all",
-    new_name=       "lion",
+    new_name=       "photomosaic",
     num_images=     False,
-    quality=        85,
+    quality=        DEFAULT_QUALITY,
     save_fullres=   False,
     save_lowres=    True,
-    save_gif=       True,
+    save_gif=       False,
     save_vid=       True,
     save_zooms=     False,
     resize_main=    False
