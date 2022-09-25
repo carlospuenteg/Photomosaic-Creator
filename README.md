@@ -1,4 +1,4 @@
-# Photomosaic Creator
+# Photomosaic Creator
 
 ## Index
 - [Install needed packages](#0-install-needed-packages)
