@@ -36,9 +36,9 @@ You can use the preset sets/folders of images or you can upload your own folders
 </div>
 <br>
 <div float="left">
-    <img src="./assets/lion.gif" alt="lion" height="500">
-    <img src="./assets/elephant.gif" alt="elephant" height="500">
-    <img src="./assets/tiger.gif" alt="tiger" height="500">
+    <img src="./assets/lion.gif" alt="lion" height="400">
+    <img src="./assets/elephant.gif" alt="elephant" height="400">
+    <img src="./assets/tiger.gif" alt="tiger" height="400">
 </div>
 
 https://user-images.githubusercontent.com/65092569/192170360-5c9a6985-58ad-49c1-874d-ea90fc1c0b42.mp4
