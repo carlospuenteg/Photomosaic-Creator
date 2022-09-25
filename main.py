@@ -333,6 +333,7 @@ def save_lowres_img(img_arr, new_path, shape, quality=95):
 # Create a zoomed version of an image
 
 def create_zoom_img(img_arr, full_shape, main_img_shape, zoom, max_res):
+    max_res = int(np.ceil(max_res/2) * 2) # Make it even (res can't be odd)
     center_x = full_shape[0]//2
     center_y = full_shape[1]//2
     left = center_y - int(full_shape[1]/(zoom*2))
@@ -341,9 +342,11 @@ def create_zoom_img(img_arr, full_shape, main_img_shape, zoom, max_res):
     bottom = center_x + int(full_shape[0]/(zoom*2))
     img = img_arr[top:bottom, left:right]
     if main_img_shape[0] > main_img_shape[1]:
-        img_res = cv2.resize(img, (max_res, max_res*main_img_shape[0]//main_img_shape[1]), interpolation=cv2.INTER_AREA)
+        height = int(np.ceil(max_res*main_img_shape[0]//main_img_shape[1]/2)*2) # To make it even (res can't be odd)
+        img_res = cv2.resize(img, (max_res, height), interpolation=cv2.INTER_AREA)
     else:
-        img_res = cv2.resize(img, (max_res*main_img_shape[1]//main_img_shape[0], max_res), interpolation=cv2.INTER_AREA)
+        width = int(np.ceil(max_res*main_img_shape[1]//main_img_shape[0]/2)*2) # To make it even (res can't be odd)
+        img_res = cv2.resize(img, (width, max_res), interpolation=cv2.INTER_AREA)
     return img_res
 
     
@@ -448,10 +451,10 @@ startTime = time.time()
 #########################################################################################
 # Your calls go here
 create_photomosaic( 
-    main_image=     "img.jpg", 
+    main_image=     "lion-m.jpg", 
     images_size=    50,
     images_folder=  "$b_$all",
-    new_name=       "photomosaic",
+    new_name=       "lion",
     num_images=     False,
     quality=        85,
     save_fullres=   False,
