@@ -3,3 +3,4 @@ numpy
 pillow
 colorthief
 moviepy
+colorama

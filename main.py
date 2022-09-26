@@ -7,6 +7,7 @@ import time
 import filecmp
 from colorthief import ColorThief
 import moviepy.editor as mp
+from colorama import init, Fore; init(autoreset=True)
 
 """
 Images taken from: 
@@ -21,7 +22,7 @@ BEST_FOLDER = "$b_"
 ALL_FOLDER = "$all"
 
 DEFAULT_FRAME_DURATION = 30
-DEFAULT_ZOOM_INCR = 1.015
+DEFAULT_ZOOM_INCR = 1.05
 DEFAULT_QUALITY = 85
 DEFAULT_MIN_IMAGES_ZOOM = 10
 
@@ -31,20 +32,6 @@ DEFAULT_MIN_IMAGES_ZOOM = 10
 # - DEFAULT_QUALITY: 85
 
 #------------------------------------------------------------------------------
-# ANSI color codes for the terminal
-
-class Ansi:
-    BLACK = '\u001b[30m'
-    RED = '\u001b[31m'
-    GREEN = '\u001b[32m'
-    YELLOW = '\u001b[33m'
-    BLUE = '\u001b[34m'
-    MAGENTA = '\u001b[35m'
-    CYAN = '\u001b[36m'
-    WHITE = '\u001b[37m'
-    RESET = '\u001b[0m'
-
-#------------------------------------------------------------------------------
 # Progress bar
 
 def progress_bar(percent, text="", bar_len=30):
@@ -52,7 +39,7 @@ def progress_bar(percent, text="", bar_len=30):
     done = round(percent*bar_len)
     left = bar_len - done
 
-    print(f"   {Ansi.GREEN}{SYMBOL*done}{Ansi.RESET}{SYMBOL*left} {f'[{round(percent*100,2)}%]'.ljust(8)} {Ansi.MAGENTA}{text}{Ansi.RESET}", end='\r')
+    print(f"   {Fore.GREEN}{SYMBOL*done}{Fore.RESET}{SYMBOL*left} {f'[{round(percent*100,2)}%]'.ljust(8)} {Fore.MAGENTA}{text}{Fore.RESET}", end='\r')
 
     if percent == 1: print("✅")
 
@@ -85,14 +72,14 @@ def resize_img(img, size):
     new_width = size[0]
     new_height = size[1]
     if (len(size) != 2):
-        print(f"{Ansi.RED}Error: size must be a list of length 2{Ansi.RESET}"); return
+        print(f"{Fore.RED}Error: size must be a list of length 2{Fore.RESET}"); return
     if not new_width or not new_height:
         if not new_width and new_height:
             new_width = int(init_width / (init_height / new_height))
         elif not new_height and new_width:
             new_height = int(init_height / (init_width / new_width))
         else:
-            print(f"{Ansi.RED}Error: Width or height must be specified{Ansi.RESET}"); return
+            print(f"{Fore.RED}Error: Width or height must be specified{Fore.RESET}"); return
     if new_width > init_width:
         new_width = init_width
     if new_height > init_height:
@@ -250,7 +237,7 @@ def get_best(folder="animals", max_avg_color_deviation=765, max_contrast=765, si
     new_path = f"images/{BEST_FOLDER}{folder}"
 
     if not os.path.exists(path): 
-        print(f"{Ansi.RED}Folder ./{path} not found{Ansi.RESET}")
+        print(f"{Fore.RED}Folder ./{path} not found{Fore.RESET}")
         return
 
     # 1
@@ -308,23 +295,23 @@ def get_file_size(path):
 
 def save_img(img, path, quality=95):
     if not cv2.imwrite(path, img, [cv2.IMWRITE_JPEG_QUALITY, quality]):
-        print(f"{Ansi.RED}Unable to save the image. Image is probably too big.{Ansi.RESET}")
+        print(f"{Fore.RED}Unable to save the image. Image is probably too big.{Fore.RESET}")
     else:
-        print(f"{Ansi.GREEN}Image saved{Ansi.RESET} ({get_file_size(path):.2f} MB)")
+        print(f"{Fore.GREEN}Image saved{Fore.RESET} ({get_file_size(path):.2f} MB)")
 
 #------------------------------------------------------------------------------
 # Save a GIF
 
 def save_gif_func(images, path, quality=95, frame_duration=DEFAULT_FRAME_DURATION):
     images[0].save(path, format="GIF", append_images=images, save_all=True, duration=frame_duration, loop=0, quality=quality)
-    print(f"{Ansi.GREEN}GIF saved{Ansi.RESET} ({get_file_size(path):.2f} MB)")
+    print(f"{Fore.GREEN}GIF saved{Fore.RESET} ({get_file_size(path):.2f} MB)")
 
 #------------------------------------------------------------------------------
 # Save a video
 
 def save_vid_gif(gif_path, new_path):
     mp.VideoFileClip(gif_path).write_videofile(new_path, logger=None)
-    print(f"{Ansi.GREEN}Video saved{Ansi.RESET} ({get_file_size(new_path):.2f} MB)")
+    print(f"{Fore.GREEN}Video saved{Fore.RESET} ({get_file_size(new_path):.2f} MB)")
 
 #------------------------------------------------------------------------------
 # Save the photomosaic
@@ -445,7 +432,7 @@ def create_photomosaic(main_image="lion-h", images_size=50, images_folder="$b_$a
     clean_folder(new_folder)
 
     # 10
-    print(f"{Ansi.YELLOW}Saving...{Ansi.RESET}")
+    print(f"{Fore.YELLOW}Saving...{Fore.RESET}")
     if save_fullres:
         save_full_img(new_img_arr, f"{new_folder}/{new_name}.jpg", quality)
     if save_lowres:
@@ -461,7 +448,7 @@ startTime = time.time()
 #########################################################################################
 # Your calls go here
 create_photomosaic( 
-    main_image=     "lion-l.jpg", 
+    main_image=     "lion-h.jpg", 
     images_size=    50,
     images_folder=  "$b_$all",
     new_name=       "photomosaic",
@@ -475,7 +462,7 @@ create_photomosaic(
     resize_main=    False
 )
 #########################################################################################
-print(f'{Ansi.CYAN}Done in: {round(time.time() - startTime,4)}s{Ansi.RESET}')
+print(f'{Fore.CYAN}Done in: {round(time.time() - startTime,4)}s{Fore.RESET}')
 #########################################################################################
 """
 clean_best_folders()
