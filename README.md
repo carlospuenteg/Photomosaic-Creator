@@ -102,7 +102,7 @@ Creates a photomosaic from a set of images
 | save_vid | Save the photomosaic as a vid, created by zooming into the photomosaic | `True` | `False` ||
 | save_zooms | Save zoomed images of the photomosaic | `False` | `True` ||
 | resize_main | Resize the main image (If you have an image too big to process) | `False` | `(720, 540)` | [1,...] |
-| min_images | Maximum number of images the final zoomed image will have | `10` | `5` | [1,...] |
+| max_zoomed_images | Maximum number of images the final zoomed image will have | `10` | `5` | [1,...] |
 | zoom_incr | Increment of the zoom in each frame | `1.05` | `1.015` | [1,...] |
 | frame_duration | Duration of each frame of the GIF/video, in milliseconds | `30` | `15` | [1,...] |
 
