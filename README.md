@@ -5,7 +5,7 @@
 - [Introduction](#1-introduction)
 - [Results](#2-results)
 - [Run the script](#3-run-the-script)
-- [How it works](#h4-ow-it-works)
+- [How it works](#4-how-it-works)
   - [`create_photomosaic`](#create_photomosaic)
   - [`get_best`](#get_best)
   - [`treat_images`](#treat_images)
@@ -49,23 +49,27 @@ Call the desired functions in this part of the `main.py` file:
 #########################################################################################
 startTime = time.time()
 #########################################################################################
-# Your calls go here
+# Your calls go here
 
 create_photomosaic( 
-    main_image=     "lion-hd.jpg", 
-    images_size=    50,
-    images_folder=  "$b_$all",
-    new_name=       "photomosaic",
-    num_images=     False,
-    quality=        85,
-    save_fullres=   True,
-    save_lowres=    True,
-    save_gif=       True,
-    save_zooms=     False,
-    resize_main=    False
+    main_image= "lion-h.jpg", 
+    images_folder= "$b_$all",
+    new_name= "photomosaic",
+    num_images= False,
+    save_fullres= False,
+    save_lowres= True,
+    save_gif= False,
+    save_vid= True,
+    save_zooms= False,
+    resize_main= False,
+    images_size= 50,
+    quality= 85,
+    max_zoomed_images= 10,
+    zoom_incr= 1.05,
+    frame_duration= 30
 )
 #########################################################################################
-print(f'{Ansi.CYAN}Done in: {round(time.time() - startTime,4)}s{Ansi.RESET}')
+print(f'{Fore.CYAN}Done in: {round(time.time() - startTime,4)}s{Fore.RESET}')
 #########################################################################################
 ```
 
@@ -89,15 +93,18 @@ Creates a photomosaic from a set of images
 | main_image | Filename of the main image, save on the `main-images` folder | `lion-h` | `elephant-h.jpg` ||
 | images_size | Size of the images to be used in the photomosaic | `50` | `100` ||
 | images_folder | Folder inside the `images` folder to be used as a set of images | `$b_$all` | `animals` ||
-| new_name | Name of the new image and folder | `photomosaic` | `lion` ||
+| new_name | Name of the new image and folder | `photomosaic` | `lion` ||
 | num_images | Number of images to be used to create the photomosaic | `False` | `255` | [3,255] |
 | quality | Quality of the new images | `85` | `75` | [0,100] |
 | save_fullres | Save the photomosaic in the full resolution | `False` | `True` ||
-| save_lowres | Save the photomosaic in the same resolution as the main image | `True` | `False` ||
-| save_gif |Ssave the photomosaic as a GIF, created by zooming into the photomosaic | `True` | `False` ||
+| save_lowres | Save the photomosaic in the same resolution as the main image | `True` | `False` ||
+| save_gif |Ssave the photomosaic as a GIF, created by zooming into the photomosaic | `False` | `True` ||
 | save_vid | Save the photomosaic as a vid, created by zooming into the photomosaic | `True` | `False` ||
-| save_zooms | Save zoomed images of the photomosaic | `False` | `True` ||
+| save_zooms | Save zoomed images of the photomosaic | `False` | `True` ||
 | resize_main | Resize the main image (If you have an image too big to process) | `False` | `(720, 540)` | [1,...] |
+| min_images | Maximum number of images the final zoomed image will have | `10` | `5` | [1,...] |
+| zoom_incr | Increment of the zoom in each frame | `1.05` | `1.015` | [1,...] |
+| frame_duration | Duration of each frame of the GIF/video, in milliseconds | `30` | `15` | [1,...] |
 
 #### Explanation
 1. Creates the needed folders
@@ -118,35 +125,38 @@ Creates a photomosaic from a set of images
 
 #### Examples
 ```python
-# Default
+# Default
 create_photomosaic( 
-    main_image=     "lion-h.jpg", 
-    images_size=    50,
-    images_folder=  "$b_$all",
-    new_name=       "photomosaic",
-    num_images=     False,
-    quality=        85,
-    save_fullres=   False,
-    save_lowres=    True,
-    save_gif=       True,
-    save_vid=       True,
-    save_zooms=     False,
-    resize_main=    False
+    main_image= "lion-h.jpg", 
+    images_folder= "$b_$all",
+    new_name= "photomosaic",
+    num_images= False,
+    save_fullres= False,
+    save_lowres= True,
+    save_gif= False,
+    save_vid= True,
+    save_zooms= False,
+    resize_main= False,
+    images_size= 50,
+    quality= 85,
+    max_zoomed_images= 10,
+    zoom_incr= 1.05,
+    frame_duration= 30
 )
 
 create_photomosaic( 
-    main_image=     "elephant-h.jpg", 
-    images_size=    50,
-    images_folder=  "$b_animals",
-    new_name=       "elephant",
-    num_images=     255,
-    save_zooms=     True,
+    main_image= "elephant-h.jpg", 
+    images_size= 50,
+    images_folder= "$b_animals",
+    new_name= "elephant",
+    num_images= 255,
+    save_zooms= True,
 )
 
 create_photomosaic( 
-    main_image=     "tiger-m.jpg", 
-    images_size=    50,
-    new_name=       "tiger",
+    main_image= "tiger-m.jpg", 
+    images_size= 50,
+    new_name= "tiger",
 )
 ```
 
@@ -159,10 +169,10 @@ Gets the best images from the `folder` folder
 
 | Argument | Description | Default | Example | Range |
 | -------- | ----------- | ------- | ------- | ----- |
-| folder | Folder inside the `images` folder to be used | `$all` | `animals` || 
-| max_avg_color_deviation | Maximum average of the deviations from every pixel from the image's average color | `765` | `120` | [0,765] |
+| folder | Folder inside the `images` folder to be used | `$all` | `animals` || 
+| max_avg_color_deviation | Maximum average of the deviations from every pixel from the image's average color | `765` | `120` | [0,765] |
 | max_contrast | Maximum contrast between the image's top and bottom and left and right parts | `765` | `150` | [0,765] |
-| size | Size that the images of the new folder will have. The less size, the less it will take to create a photomosaic with these images | `1000` | `200` | [1,...] |
+| size | Size that the images of the new folder will have. The less size, the less it will take to create a photomosaic with these images | `1000` | `200` | [1,...] |
 
 #### Explanation
 
@@ -174,19 +184,19 @@ Gets the best images from the `folder` folder
 #### Examples
 
 ```python
-# Default
+# Default
 get_best(
-    folder=                 "$all",
-    max_avg_color_deviation=765,
-    max_contrast=           765,
-    size=                   1000
+    folder= "$all",
+    max_avg_color_deviation= 765,
+    max_contrast= 765,
+    size= 1000
 )
 
 get_best(
-    folder=                 "animals",
-    max_avg_color_deviation=120,
-    max_contrast=           150,
-    size=                   200
+    folder= "animals",
+    max_avg_color_deviation= 120,
+    max_contrast= 150,
+    size= 200
 )
 ```
 
@@ -197,7 +207,7 @@ get_best(
 
 | Argument | Description | Default | Example | Range |
 | -------- | ----------- | ------- | ------- | ----- |
-| size | Size that the treated images of all the folders will have | `1000` | `500` | [1,...] |
+| size | Size that the treated images of all the folders will have | `1000` | `500` | [1,...] |
 
 #### Explanation
 
@@ -206,9 +216,9 @@ Resizes and eliminates duplicates from every folder
 #### Examples
 
 ```python
-# Default
+# Default
 treat_all_images(
-    size=   1000
+    size= 1000
 )
 ```
 
@@ -219,7 +229,7 @@ treat_all_images(
 
 | Argument | Description | Default | Example | Range |
 | -------- | ----------- | ------- | ------- | ----- |
-| size | Size that the images of the new folder will have | `200` | `100` | [1,...] |
+| size | Size that the images of the new folder will have | `200` | `100` | [1,...] |
 
 #### Explanation
 
@@ -228,13 +238,13 @@ Creates a new folder called `$all` inside the `images` folder, with all the imag
 #### Examples
 
 ```python
-# Default
+# Default
 create_all_folder(
-    size=   200
+    size= 200
 )
 
 create_all_folder(
-    size=   100
+    size= 100
 )
 ```
 
@@ -250,6 +260,7 @@ Deletes the best folders (the ones that start with `$b_`)
 ```python
 clean_best_folders()
 ```
+
 
 
 ## 5. Possible errors
