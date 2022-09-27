@@ -1,7 +1,7 @@
 # Photomosaic Creator
 
 ## Index
-- [Install needed packages](#0-install-needed-packages)
+- [Install needed packages](#install-needed-packages)
 - [Introduction](#1-introduction)
 - [Results](#2-results)
 - [Run the script](#3-run-the-script)
@@ -9,13 +9,13 @@
   - [`create_photomosaic`](#create_photomosaic)
   - [`get_best`](#get_best)
   - [`treat_images`](#treat_images)
-  - [`treat_all_images](#treat_all_images)
+  - [`treat_all_images`](#treat_all_images)
   - [`create_all_folder`](#create_all_folder)
   - [`clean_best_folders`](#clean_best_folders)
 - [Possible errors](#5-possible-errors)
 
 
-## 0. Install needed packages
+## Install needed packages
 ```bash
 pip3 install -r requirements.txt
 ```
@@ -59,13 +59,15 @@ create_photomosaic(
     save_fullres= False,
     save_lowres= True,
     save_gif= False,
-    save_vid= True,
+    save_gif_reversed= True,
+    save_vid= False,
+    save_vid_reversed= True,
     save_zooms= False,
     resize_main= False,
     images_size= 50,
     quality= 85,
-    max_zoomed_images= 10,
-    zoom_incr= 1.05,
+    max_zoomed_images= 5,
+    zoom_incr= 1.02,
     frame_duration= 30
 )
 #########################################################################################
@@ -98,8 +100,10 @@ Creates a photomosaic from a set of images
 | quality | Quality of the new images | `85` | `75` | [0,100] |
 | save_fullres | Save the photomosaic in the full resolution | `False` | `True` ||
 | save_lowres | Save the photomosaic in the same resolution as the main image | `True` | `False` ||
-| save_gif |Ssave the photomosaic as a GIF, created by zooming into the photomosaic | `False` | `True` ||
-| save_vid | Save the photomosaic as a vid, created by zooming into the photomosaic | `True` | `False` ||
+| save_gif | Save the photomosaic as a GIF, created by zooming **into** the photomosaic | `False` | `True` ||
+| save_gif_reversed | Save the photomosaic as a GIF, created by zooming **out** the photomosaic | `False` | `True` ||
+| save_vid | Save the photomosaic as a vid, created by zooming **into** the photomosaic | `True` | `False` ||
+| save_vid_reversed | Save the photomosaic as a vid, created by zooming **out** of the photomosaic | `True` | `False` ||
 | save_zooms | Save zoomed images of the photomosaic | `False` | `True` ||
 | resize_main | Resize the main image (If you have an image too big to process) | `False` | `(720, 540)` | [1,...] |
 | max_zoomed_images | Maximum number of images the final zoomed image will have | `10` | `5` | [1,...] |
@@ -120,8 +124,10 @@ Creates a photomosaic from a set of images
     - If `save_fullres == True`, it will save the photomosaic in the full resolution
     - If `save_lowres == True`, it will save the photomosaic in the same resolution as the main image
     - If `save_zooms == True`, it will save zoomed images of the photomosaic
-    - If `save_gif == True`, it will save the photomosaic as a GIF, created by zooming into the photomosaic
-    - If `save_vid == True`, it will save the photomosaic as a video, created by zooming into the photomosaic
+    - If `save_gif == True`, it will save the photomosaic as a GIF, created by zooming **into** the photomosaic
+    - If `save_gif_reversed == True`, it will save the photomosaic as a GIF, created by zooming **out** the photomosaic
+    - If `save_vid == True` or, it will save the photomosaic as a video, created by zooming **into** the photomosaic
+    - If `save_vid_reversed == True`, it will save the photomosaic as a video, created by zooming **out** of the photomosaic
 
 #### Examples
 ```python
@@ -134,13 +140,15 @@ create_photomosaic(
     save_fullres= False,
     save_lowres= True,
     save_gif= False,
-    save_vid= True,
+    save_gif_reversed= True,
+    save_vid= False,
+    save_vid_reversed= True,
     save_zooms= False,
     resize_main= False,
     images_size= 50,
     quality= 85,
-    max_zoomed_images= 10,
-    zoom_incr= 1.05,
+    max_zoomed_images= 5,
+    zoom_incr= 1.02,
     frame_duration= 30
 )
 

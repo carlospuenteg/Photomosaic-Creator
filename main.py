@@ -7,6 +7,8 @@ import time
 import filecmp
 from colorthief import ColorThief
 import moviepy.editor as mp
+import moviepy.video.fx.all as vfx
+from moviepy.editor import *
 from colorama import init, Fore; init(autoreset=True)
 
 """
@@ -356,27 +358,46 @@ def save_zoom_images(img_arr, new_folder, new_name, main_img_shape, images_size,
 #------------------------------------------------------------------------------
 # Save a GIF of the zoomed images of the photomosaic
 
-def save_zooms_gif(img_arr, new_folder, new_name, main_img_shape, images_size, save_gif, save_vid, quality=95, max_zoomed_images=10, zoom_incr=1.05, frame_duration=30, max_res=1080):
+def save_zooms_gif(img_arr, new_folder, new_name, main_img_shape, images_size, save_gif, save_gif_reversed, save_vid, save_vid_reversed, quality=95, max_zoomed_images=10, zoom_incr=1.05, frame_duration=30, max_res=1080):
     full_shape = img_arr.shape
     gif_images = []
     zoom = 1
+
     while min(full_shape[0], full_shape[1])/zoom > images_size*max_zoomed_images:
         zoom_img = cv2.cvtColor(create_zoom_img(img_arr, full_shape, main_img_shape, zoom, max_res), cv2.COLOR_BGR2RGB)
         gif_images.append(Image.fromarray(zoom_img))
         zoom *= zoom_incr
 
-    gif_path = f"{new_folder}/{new_name}.gif"
-    save_gif_func(gif_images, gif_path, quality, frame_duration)
+    if save_gif or save_vid:
+        gif_path = f"{new_folder}/{new_name}.gif"
+        save_gif_func(gif_images, gif_path, quality, frame_duration)
+    
+    if save_gif_reversed or save_vid_reversed:
+        gif_reversed_path = f"{new_folder}/{new_name}_reversed.gif"
+        save_gif_func(gif_images[::-1], gif_reversed_path, quality, frame_duration)
 
     if save_vid:
         save_vid_gif(gif_path, f"{new_folder}/{new_name}.mp4")
-    if not save_gif:
+    if save_vid_reversed:
+        save_vid_gif(gif_reversed_path, f"{new_folder}/{new_name}_reversed.mp4")
+
+    if not save_gif and save_vid:
         os.remove(gif_path)
+    if not save_gif_reversed and save_vid_reversed:
+        os.remove(gif_reversed_path)
+
+#------------------------------------------------------------------------------
+# Save a reversed video
+
+def save_reversed_vid(vid_path, new_path):
+
+
+    print(f"{Fore.GREEN}Reversed video saved{Fore.RESET} ({get_file_size(new_path):.2f} MB)")
 
 #------------------------------------------------------------------------------
 # This is executed when the script is run
 
-def create_photomosaic(main_image="lion-h", images_folder="$b_$all", new_name="photomosaic", num_images=False, save_fullres=True, save_lowres=True, save_gif=False, save_vid=True, save_zooms=True, resize_main=False, quality=85, images_size=50, max_zoomed_images=10, zoom_incr=1.05, frame_duration=30):
+def create_photomosaic(main_image="lion-h", images_folder="$b_$all", new_name="photomosaic", num_images=False, save_fullres=True, save_lowres=True, save_gif=False, save_gif_reversed=False, save_vid=True, save_vid_reversed=True, save_zooms=True, resize_main=False, quality=85, images_size=50, max_zoomed_images=10, zoom_incr=1.05, frame_duration=30):
     images_folder_name = images_folder
     images_folder = f"images/{images_folder_name}"
 
@@ -429,8 +450,8 @@ def create_photomosaic(main_image="lion-h", images_folder="$b_$all", new_name="p
         save_lowres_img(new_img_arr, f"{new_folder}/{new_name}_lowres.jpg", main_img.shape, quality)
     if save_zooms:
         save_zoom_images(new_img_arr, new_folder, new_name, main_img.shape, images_size, quality, max_zoomed_images, zoom_incr)
-    if save_gif or save_vid:
-        save_zooms_gif(new_img_arr, new_folder, new_name, main_img.shape, images_size, save_gif, save_vid, quality, max_zoomed_images, zoom_incr, frame_duration)
+    if save_gif or save_gif_reversed or save_vid or save_vid_reversed:
+        save_zooms_gif(new_img_arr, new_folder, new_name, main_img.shape, images_size, save_gif, save_gif_reversed, save_vid, save_vid_reversed, quality, max_zoomed_images, zoom_incr, frame_duration)
     
 
 #########################################################################################
@@ -445,13 +466,15 @@ create_photomosaic(
     save_fullres= False,
     save_lowres= True,
     save_gif= False,
-    save_vid= True,
+    save_gif_reversed= True,
+    save_vid= False,
+    save_vid_reversed= True,
     save_zooms= False,
     resize_main= False,
     images_size= 50,
     quality= 85,
-    max_zoomed_images= 10,
-    zoom_incr= 1.05,
+    max_zoomed_images= 5,
+    zoom_incr= 1.02,
     frame_duration= 30
 )
 #########################################################################################
@@ -479,13 +502,15 @@ create_photomosaic(
     save_fullres= False,
     save_lowres= True,
     save_gif= False,
-    save_vid= True,
+    save_gif_reversed= True,
+    save_vid= False,
+    save_vid_reversed= True,
     save_zooms= False,
     resize_main= False,
     images_size= 50,
     quality= 85,
-    max_zoomed_images= 10,
-    zoom_incr= 1.05,
+    max_zoomed_images= 5,
+    zoom_incr= 1.02,
     frame_duration= 30
 )
 """
