@@ -36,11 +36,7 @@ You can use the preset sets/folders of images or you can upload your own folders
 </div>
 <br>
 
-https://user-images.githubusercontent.com/65092569/192170512-0378d30a-4094-4029-a875-1a368e5f948f.mp4
-
-https://user-images.githubusercontent.com/65092569/192170360-5c9a6985-58ad-49c1-874d-ea90fc1c0b42.mp4
-
-https://user-images.githubusercontent.com/65092569/192170517-4b6492ba-2d95-46fa-a4da-5bc9dc64b833.mp4
+https://user-images.githubusercontent.com/65092569/200093661-00c553d7-2e53-48b0-8513-beaada3676cb.mp4
 
 
 ## 3. Run the script
@@ -59,7 +55,7 @@ create_photomosaic(
     save_fullres= False,
     save_lowres= True,
     save_gif= False,
-    save_gif_reversed= True,
+    save_gif_reversed= False,
     save_vid= False,
     save_vid_reversed= True,
     save_zooms= False,
@@ -140,7 +136,7 @@ create_photomosaic(
     save_fullres= False,
     save_lowres= True,
     save_gif= False,
-    save_gif_reversed= True,
+    save_gif_reversed= False,
     save_vid= False,
     save_vid_reversed= True,
     save_zooms= False,
